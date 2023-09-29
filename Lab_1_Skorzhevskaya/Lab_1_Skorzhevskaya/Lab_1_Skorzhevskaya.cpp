@@ -75,6 +75,10 @@ pipe loadPipe() {
 
     pipe newPipe;
     ifstream fin;
+    int datad;
+    string datam;
+    bool datar;
+    double datal;
     fin.open("dataPipe.txt", ios::in);
 
     if (fin.is_open() && !fin.eof())
@@ -125,10 +129,12 @@ void savePipe(const pipe& pipe) {
     ofstream fout;
     fout.open("dataPipe.txt", ios::out);
     if (fout.is_open()) {
-
-        fout << pipe.km_mark << endl << pipe.length
-            << endl << pipe.diam << endl<< pipe.repair << endl;
-        fout.close();
+        if (pipe.km_mark == "") cout << "Input or load data to save" << endl;
+        else {
+            fout << pipe.km_mark << endl << pipe.length
+                << endl << pipe.diam << endl << pipe.repair << endl;
+            fout.close();
+        }
     }
     fout.close();
 }
@@ -137,11 +143,13 @@ void saveCS(const comprSt& CS) {
 
     ofstream fout;
        fout.open("dataCS.txt", ios::out);
-    if (fout.is_open()) {
-        
-        fout << CS.name << endl << CS.numOfWS
-            << endl << CS.WSinOperation << endl<< CS.efficiency << endl;
-        fout.close();
+    if (fout.is_open()){
+        if (CS.name== "") cout << "Input or load data to save" << endl;
+        else{
+            fout << CS.name << endl << CS.numOfWS
+                << endl << CS.WSinOperation << endl<< CS.efficiency << endl;
+            fout.close();
+        }
     }
     fout.close();
 }
@@ -215,18 +223,24 @@ comprSt inputCS() {
 
 //Вывод информации о трубе на консоль
 void printPipe(const pipe &pipe) {
-    cout << "km mark: " << pipe.km_mark << endl;
-    cout << "length: " << pipe.length << endl;
-    cout << "diametr: " << pipe.diam << endl;
-    cout << "repair: " << pipe.repair << endl;
+    if (pipe.km_mark == "") cout << "Input or load data to print" << endl;
+    else {
+        cout << "km mark: " << pipe.km_mark << endl;
+        cout << "length: " << pipe.length << endl;
+        cout << "diametr: " << pipe.diam << endl;
+        cout << "repair: " << pipe.repair << endl;
+    }
 }
 
 //Вывод информации о КС на консоль
 void printCS(const comprSt &CS) {
-    cout << "name: " << CS.name << endl;
-    cout << "number of WS: " << CS.numOfWS << endl;
-    cout << "WS in operation: " << CS.WSinOperation << endl;
-    cout << "efficiency: " << CS.efficiency << endl;
+    if (CS.name == "") cout << "Input or load data to save" << endl;
+    else {
+        cout << "name: " << CS.name << endl;
+        cout << "number of WS: " << CS.numOfWS << endl;
+        cout << "WS in operation: " << CS.WSinOperation << endl;
+        cout << "efficiency: " << CS.efficiency << endl;
+    }
 }
 
 void printAllObj(const pipe& pipe, const comprSt& CS) {
@@ -299,7 +313,6 @@ int main()
         {
             cout << "enter 1 or 0 to change state" << endl;
             newPipe.repair = getIndex();
-            //changeRepair(newPipe);
             break;
         }
         case 5:
@@ -317,8 +330,8 @@ int main()
         }
         case 7:
         {
-            loadPipe();
-            loadCS();
+            newPipe = loadPipe();
+            newCS = loadCS();
             break;
         }
         case 0:
