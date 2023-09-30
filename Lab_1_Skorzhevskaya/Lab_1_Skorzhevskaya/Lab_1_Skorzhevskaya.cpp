@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <fstream>
+#include <string>
 using namespace std;
 
 struct pipe
@@ -20,23 +21,21 @@ struct comprSt
 
 //---------------ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ-----------------//
 //получение индекса 1 или 0 для св-ва "в ремонте"
-int getIndex() {
+bool inputBool() {
 
     bool state;
     while (!(cin >> state)) {
-        if (cin.eof()) throw "eof";
-
         cin.clear();
         cin.ignore(1000, '\n');
         cout << "Try again: ";
     } 
+    return state;
 }
 
-int inputInt(int intValue) {
- 
-    while (!(cin >> intValue)) {
-        if (cin.eof()) throw "eof";
+int inputInt() {
+    int intValue;
 
+    while (!(cin >> intValue)) {
         cin.clear();
         cin.ignore(1000, '\n');
         cout << "Try again: ";
@@ -44,11 +43,10 @@ int inputInt(int intValue) {
     return intValue;
 }
 
-double inputDouble(double doubleValue) {
-
+double inputDouble() {
+    double doubleValue;
     while (!(cin >> doubleValue)) {
-        if (cin.eof()) throw "eof";
-
+      
         cin.clear();
         cin.ignore(1000, '\n');
         cout << "Try again: ";
@@ -75,13 +73,10 @@ pipe loadPipe() {
 
     pipe newPipe;
     ifstream fin;
-    int datad;
-    string datam;
-    bool datar;
-    double datal;
+   
     fin.open("dataPipe.txt", ios::in);
 
-    if (fin.is_open() && !fin.eof())
+    if (fin.is_open() && fin.eof())
     {
         fin >> newPipe.km_mark;
         fin >> newPipe.length;
@@ -89,7 +84,7 @@ pipe loadPipe() {
         fin >> newPipe.repair;
         fin.close();
     }
-    else if (fin.eof()) {
+    else if (!fin.eof()) {
 
         cout << "File dataPipe.txt empty" << endl;
     }
@@ -106,7 +101,8 @@ comprSt loadCS() {
     fin.open("dataCS.txt", ios::in);
     if (fin.is_open() && !fin.eof())
     {
-        fin >> newCS.name;
+        //fin >> newCS.name;
+        getline(fin, newCS.name, ';');
         fin >> newCS.numOfWS;
         fin >> newCS.WSinOperation;
         fin >> newCS.efficiency;
@@ -183,13 +179,14 @@ pipe inputPipe() {
 
     pipe newPipe;
     cout << "Enter the km mark of the pipe:";
-    cin >> newPipe.km_mark;
+    cin >> ws;
+    getline(cin, newPipe.km_mark);
     cout << "Enter the length of the pipe:";
-    newPipe.length = inputDouble(newPipe.length);
+    newPipe.length = inputDouble();
     cout << "Enter the diametr of the pipe:";
-    newPipe.diam = inputInt(newPipe.diam);
+    newPipe.diam = inputInt();
     cout << "Enter 1 if the pipe is under repair otherwise 0:";
-    newPipe.repair = getIndex();
+    newPipe.repair = inputBool();
     return newPipe;
 }
 //Ввод информации о КС с консоли
@@ -198,24 +195,26 @@ comprSt inputCS() {
     comprSt newCS;
 
     cout << "Enter the name of the CS:";
-    cin >> newCS.name;
+    cin >> ws;
+    getline(cin, newCS.name);
+    //!!my ks 
 
     cout << "Enter the number of WS:";
-    newCS.numOfWS = inputInt(newCS.numOfWS);
+    newCS.numOfWS = inputInt();
 
     cout << "Enter the WS in operation:";
-    newCS.WSinOperation = inputInt(newCS.WSinOperation);
+    newCS.WSinOperation = inputInt();
 
     while (1) {
         if (checkNumWSinOperation(newCS.WSinOperation, newCS.numOfWS)) {
             cout << "Enter a number less than or equal to " << newCS.numOfWS << ": ";
-            newCS.WSinOperation = inputInt(newCS.WSinOperation);
+            newCS.WSinOperation = inputInt();
         }
         else break;
     }
 
     cout << "Enter efficiency:";
-    newCS.efficiency = inputDouble(newCS.efficiency);
+    newCS.efficiency = inputDouble();
     return newCS;
 }
 
@@ -254,19 +253,20 @@ void printAllObj(const pipe& pipe, const comprSt& CS) {
 
 //функция изменения признака "в ремонте"
 void changeRepair(pipe& pipe) {
-    pipe.repair = getIndex();
+    pipe.repair = inputBool();
 }
 //функция запуска/останова цеха
-void editCS(comprSt& CS, string sign) {
-    if (sign == "+") {
+void editCS(comprSt& CS) {
+    cout << "Enter '1' to start one workshop and '0 to stop: " << endl;
+    bool sign = inputBool();
+    if (sign == 1) {
         if (CS.WSinOperation == CS.numOfWS) cout << "all workshops are working" << endl;
-        else CS.WSinOperation += 1;
+        else CS.WSinOperation ++;
     }
-    else if (sign == "-") {
+    else{
         if (CS.WSinOperation == 0) cout << "all workshops are stopped" << endl;
-        else CS.WSinOperation -= 1;
+        else CS.WSinOperation --;
     }
-    else cout << "try again" << endl;
 }
 
 
@@ -290,8 +290,7 @@ int main()
     while (1)
     {
         printMenu();
-        int i=0;
-        i = inputInt(i);
+        int i = inputInt();
         switch (i)
         {
         case 1:
@@ -312,15 +311,15 @@ int main()
         case 4:
         {
             cout << "enter 1 or 0 to change state" << endl;
-            newPipe.repair = getIndex();
+            newPipe.repair = inputBool();
             break;
         }
         case 5:
         {
-            cout << "Enter '+' to start one workshop and '-' to stop: " << endl;
+            /*cout << "Enter '+' to start one workshop and '-' to stop: " << endl;
             string sign;
-            cin >> sign;
-            editCS(newCS, sign);
+            cin >> sign;*/
+            editCS(newCS);
             break;
         }
         case 6:
