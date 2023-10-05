@@ -73,23 +73,29 @@ pipe loadPipe() {
 
     pipe newPipe;
     ifstream fin;
-   
-    fin.open("dataPipe.txt", ios::in);
+    string marker;
+    bool flag = 0;  
+    fin.open("data.txt", ios::in);
 
-    if (fin.is_open() && fin.eof())
+    if (fin.is_open())
     {
-        fin >> newPipe.km_mark;
-        fin >> newPipe.length;
-        fin >> newPipe.diam;
-        fin >> newPipe.repair;
-        fin.close();
+        while (!fin.eof()) {
+            fin >> marker;
+            if (marker == "PIPE") {
+                fin >> ws;
+                getline(fin, newPipe.km_mark);
+                fin >> newPipe.length;
+                fin >> newPipe.diam;
+                fin >> newPipe.repair;
+                fin.close();
+                flag = 1;
+                break;
+            }
+        }
+        if (!flag) cout << "save the pipe data to a file" << endl;
     }
-    else if (!fin.eof()) {
-
-        cout << "File dataPipe.txt empty" << endl;
-    }
-    else {
-        cout << "Error! The file dataPipe.txt does not exist" << endl;
+    else if (!fin.is_open()) {
+        cout << "Error! The file data.txt does not exist" << endl;
     }
     return newPipe;
 }
@@ -98,78 +104,87 @@ comprSt loadCS() {
 
     comprSt newCS;
     ifstream fin;
-    fin.open("dataCS.txt", ios::in);
-    if (fin.is_open() && !fin.eof())
+    string marker;
+    bool flag = 0;
+    fin.open("data.txt", ios::in);
+    if (fin.is_open())
     {
-        //fin >> newCS.name;
-        getline(fin, newCS.name, ';');
-        fin >> newCS.numOfWS;
-        fin >> newCS.WSinOperation;
-        fin >> newCS.efficiency;
-        fin.close();
+        while (!fin.eof()) {
+            fin >> marker;
+            if (marker == "CS") {
+                fin >> ws;
+                getline(fin, newCS.name);
+                fin >> newCS.numOfWS;
+                fin >> newCS.WSinOperation;
+                fin >> newCS.efficiency;
+                fin.close();
+                flag = 1;
+                break;
+            }
+        }if (!flag) cout << "save the CS data to a file" << endl;
     }
-    else if (fin.eof()) {
-        cout << "File dataCS.txt empty" << endl;
-    }
-    else {
-        cout << "Error! The file dataCS.txt does not exist" << endl;
+    else if (!fin.is_open()) {
+        cout << "Error! The file data.txt does not exist" << endl;
     }
     
     return newCS;
 }
+
 //-------------------СОХРАНЕНИЕ В ФАЙЛ-------------------------//
 
 //Сохранение информации о трубе в файл
 void savePipe(const pipe& pipe) {
 
     ofstream fout;
-    fout.open("dataPipe.txt", ios::out);
-    if (fout.is_open()) {
-        if (pipe.km_mark == "") cout << "Input or load data to save" << endl;
-        else {
-            fout << pipe.km_mark << endl << pipe.length
+    fout.open("data.txt", ios::app);
+   if (fout.is_open()) {
+            fout << "PIPE\n" << pipe.km_mark << endl << pipe.length
                 << endl << pipe.diam << endl << pipe.repair << endl;
             fout.close();
-        }
-    }
-    fout.close();
+   }
 }
 //Сохранение информации о КС в файл
 void saveCS(const comprSt& CS) {
 
     ofstream fout;
-       fout.open("dataCS.txt", ios::out);
+    fout.open("data.txt", ios::app);
     if (fout.is_open()){
-        if (CS.name== "") cout << "Input or load data to save" << endl;
-        else{
-            fout << CS.name << endl << CS.numOfWS
+            fout << "CS\n" << CS.name << endl << CS.numOfWS
                 << endl << CS.WSinOperation << endl<< CS.efficiency << endl;
             fout.close();
-        }
     }
-    fout.close();
 }
 
 void SaveToFile(const pipe& pipe, const comprSt& CS) {
-    int i = SaveInformation();
-    switch (i) {
-    case 1: {
-        savePipe(pipe);
-        break;
+    ofstream fout;
+    fout.open("data.txt", ios::out);
+    
+    if ((CS.name == "") || (pipe.km_mark == "")) cout << "Input or load data to save" << endl;
+    else {
+        if (fout.is_open()) {
+            fout << "PIPE\n" << pipe.km_mark << endl << pipe.length
+                << endl << pipe.diam << endl << pipe.repair << endl;
+            fout << "CS\n" << CS.name << endl << CS.numOfWS
+                << endl << CS.WSinOperation << endl << CS.efficiency << endl;
+            fout.close();
+        }
     }
-    case 2: {
-        saveCS(CS);
-        break;
-    }
-    case 3: {
-        savePipe(pipe);
-        saveCS(CS);
-        break;
-    }
-    default: {
-        cout << "wrong action" << endl;
-    }
-    }
+
+        /*if ((CS.name == "") && (pipe.km_mark == "")) cout << "Input or load data to save" << endl;
+        else {
+            if ((CS.name == "") && (pipe.km_mark != "")) {
+                savePipe(pipe);
+                cout << "Input or load CS data to save" << endl;
+            }
+            else if ((CS.name != "") && (pipe.km_mark == "")) {
+                saveCS(CS);
+                cout << "Input or load pipe data to save" << endl;
+            }
+            else {
+                saveCS(CS);
+                savePipe(pipe);    
+            }
+        }*/
 }
 
 //---------------------ВВОД С КОНСОЛИ-------------------------//
@@ -197,7 +212,6 @@ comprSt inputCS() {
     cout << "Enter the name of the CS:";
     cin >> ws;
     getline(cin, newCS.name);
-    //!!my ks 
 
     cout << "Enter the number of WS:";
     newCS.numOfWS = inputInt();
@@ -253,7 +267,7 @@ void printAllObj(const pipe& pipe, const comprSt& CS) {
 
 //функция изменения признака "в ремонте"
 void changeRepair(pipe& pipe) {
-    pipe.repair = inputBool();
+    pipe.repair = !pipe.repair;
 }
 //функция запуска/останова цеха
 void editCS(comprSt& CS) {
@@ -279,7 +293,7 @@ void printMenu() {
         << "4. Edit pipe" << endl
         << "5. Edit CS" << endl
         << "6. Save to file" << endl
-        << "7, Load from file" << endl
+        << "7. Load from file" << endl
         << "0. Exit" << endl;
 }
 
@@ -316,9 +330,6 @@ int main()
         }
         case 5:
         {
-            /*cout << "Enter '+' to start one workshop and '-' to stop: " << endl;
-            string sign;
-            cin >> sign;*/
             editCS(newCS);
             break;
         }
