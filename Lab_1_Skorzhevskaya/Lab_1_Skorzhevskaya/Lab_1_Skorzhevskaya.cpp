@@ -136,7 +136,7 @@ comprSt loadCS() {
 void savePipe(const pipe& pipe) {
 
     ofstream fout;
-    fout.open("data.txt", ios::app);
+    fout.open("data.txt", ios::out);
    if (fout.is_open()) {
             fout << "PIPE\n" << pipe.km_mark << endl << pipe.length
                 << endl << pipe.diam << endl << pipe.repair << endl;
@@ -155,36 +155,84 @@ void saveCS(const comprSt& CS) {
     }
 }
 
+//void SaveToFile(const pipe& pipe, const comprSt& CS) {
+//    //ofstream fout;
+//    //fout.open("data.txt", ios::out);
+//    
+//    if ((CS.name == "") || (pipe.km_mark == "")) cout << "Input or load data to save" << endl;
+//    else {
+//        /*if (fout.is_open()) {
+//            fout << "PIPE\n" << pipe.km_mark << endl << pipe.length
+//                << endl << pipe.diam << endl << pipe.repair << endl;
+//            fout << "CS\n" << CS.name << endl << CS.numOfWS
+//                << endl << CS.WSinOperation << endl << CS.efficiency << endl;
+//            fout.close();
+//
+//
+//        }*/
+//        savePipe(pipe);
+//        saveCS(CS);
+//    }
+//
+//        /*if ((CS.name == "") && (pipe.km_mark == "")) cout << "Input or load data to save" << endl;
+//        else {
+//            if ((CS.name == "") && (pipe.km_mark != "")) {
+//                savePipe(pipe);
+//                cout << "Input or load CS data to save" << endl;
+//            }
+//            else if ((CS.name != "") && (pipe.km_mark == "")) {
+//                saveCS(CS);
+//                cout << "Input or load pipe data to save" << endl;
+//            }
+//            else {
+//                saveCS(CS);
+//                savePipe(pipe);    
+//            }
+//        }*/
+//}
+
 void SaveToFile(const pipe& pipe, const comprSt& CS) {
-    ofstream fout;
-    fout.open("data.txt", ios::out);
-    
-    if ((CS.name == "") || (pipe.km_mark == "")) cout << "Input or load data to save" << endl;
+    //ofstream fout;
+    //fout.open("data.txt", ios::out);
+
+    if ((CS.name == "") && (pipe.km_mark == "")) cout << "Input or load data to save" << endl;
     else {
-        if (fout.is_open()) {
+        if (CS.name == "") {
+            savePipe(pipe);
+        }
+        else if (pipe.km_mark == "") {
+            saveCS(CS);
+        }
+        else {
+        /*if (fout.is_open()) {
             fout << "PIPE\n" << pipe.km_mark << endl << pipe.length
                 << endl << pipe.diam << endl << pipe.repair << endl;
             fout << "CS\n" << CS.name << endl << CS.numOfWS
                 << endl << CS.WSinOperation << endl << CS.efficiency << endl;
             fout.close();
+
+
+        }*/
+            savePipe(pipe);
+            saveCS(CS);
         }
     }
 
-        /*if ((CS.name == "") && (pipe.km_mark == "")) cout << "Input or load data to save" << endl;
+    /*if ((CS.name == "") && (pipe.km_mark == "")) cout << "Input or load data to save" << endl;
+    else {
+        if ((CS.name == "") && (pipe.km_mark != "")) {
+            savePipe(pipe);
+            cout << "Input or load CS data to save" << endl;
+        }
+        else if ((CS.name != "") && (pipe.km_mark == "")) {
+            saveCS(CS);
+            cout << "Input or load pipe data to save" << endl;
+        }
         else {
-            if ((CS.name == "") && (pipe.km_mark != "")) {
-                savePipe(pipe);
-                cout << "Input or load CS data to save" << endl;
-            }
-            else if ((CS.name != "") && (pipe.km_mark == "")) {
-                saveCS(CS);
-                cout << "Input or load pipe data to save" << endl;
-            }
-            else {
-                saveCS(CS);
-                savePipe(pipe);    
-            }
-        }*/
+            saveCS(CS);
+            savePipe(pipe);
+        }
+    }*/
 }
 
 //---------------------ВВОД С КОНСОЛИ-------------------------//
