@@ -282,6 +282,17 @@ comprSt inputCS() {
 
 //--------------------ВЫВОД НА КОНСОЛЬ-------------------//
 
+ostream& operator << (ostream& out, const pipe& pipe) {
+    if (pipe.km_mark == "") cout << "Input or load data to print" << endl;
+    else {
+        out << "km mark: " << pipe.km_mark << endl;
+        out << "length: " << pipe.length << endl;
+        out << "diametr: " << pipe.diam << endl;
+        out << "repair: " << pipe.repair << endl;
+    }
+    return out;
+}
+
 //Вывод информации о трубе на консоль
 void printPipe(const pipe &pipe) {
     if (pipe.km_mark == "") cout << "Input or load data to print" << endl;
@@ -295,7 +306,7 @@ void printPipe(const pipe &pipe) {
 
 //Вывод информации о КС на консоль
 void printCS(const comprSt &CS) {
-    if (CS.name == "") cout << "Input or load data to save" << endl;
+    if (CS.name == "") cout << "Input or load data to print" << endl;
     else {
         cout << "name: " << CS.name << endl;
         cout << "number of WS: " << CS.numOfWS << endl;
@@ -306,7 +317,8 @@ void printCS(const comprSt &CS) {
 
 void printAllObj(const pipe& pipe, const comprSt& CS) {
     cout << "\nPipe information" << endl;
-    printPipe(pipe);
+    //printPipe(pipe);
+    cout << pipe;
     cout << "\nCS information" << endl;
     printCS(CS);
 }
@@ -319,16 +331,34 @@ void changeRepair(pipe& pipe) {
 }
 //функция запуска/останова цеха
 void editCS(comprSt& CS) {
-    cout << "Enter '1' to start one workshop and '0 to stop: " << endl;
-    bool sign = inputBool();
-    if (sign == 1) {
-        if (CS.WSinOperation == CS.numOfWS) cout << "all workshops are working" << endl;
-        else CS.WSinOperation ++;
+    if (CS.name != "") {
+        cout << "Enter '1' to start one workshop and '0 to stop: " << endl;
+        bool sign = inputBool();
+        if (sign == 1) {
+            if (CS.WSinOperation == CS.numOfWS) cout << "all workshops are working" << endl;
+            else CS.WSinOperation++;
+        }
+        else {
+            if (CS.WSinOperation == 0) cout << "all workshops are stopped" << endl;
+            else CS.WSinOperation--;
+        }
     }
-    else{
-        if (CS.WSinOperation == 0) cout << "all workshops are stopped" << endl;
-        else CS.WSinOperation --;
-    }
+    else cout << "Input or load data CS to edit" << endl;
+    
+}
+
+istream& operator >> (istream& in, pipe& newPipe) {
+    cout << "Enter the km mark of the pipe:";
+    in >> ws;
+    getline(in, newPipe.km_mark);
+    cout << "Enter the length of the pipe:";
+    newPipe.length = inputDouble();
+    cout << "Enter the diametr of the pipe:";
+    newPipe.diam = inputInt();
+    cout << "Enter 1 if the pipe is under repair otherwise 0:";
+    newPipe.repair = inputBool();
+    //return newPipe;
+    return in;
 }
 
 
@@ -357,7 +387,8 @@ int main()
         {
         case 1:
         {
-            newPipe = inputPipe();
+            //newPipe = inputPipe();
+            cin >> newPipe;
             break;
         }
         case 2:
@@ -372,8 +403,8 @@ int main()
         }
         case 4:
         {
-            cout << "enter 1 or 0 to change state" << endl;
-            newPipe.repair = inputBool();
+            if (newPipe.km_mark != "") changeRepair(newPipe);
+            else cout << "Input or load data pipe to edit" << endl;
             break;
         }
         case 5:
