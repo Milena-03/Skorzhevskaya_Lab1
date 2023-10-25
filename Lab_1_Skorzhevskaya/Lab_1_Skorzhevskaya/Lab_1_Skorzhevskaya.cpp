@@ -20,39 +20,53 @@ struct comprSt
 };
 
 //---------------ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ-----------------//
-//получение индекса 1 или 0 для св-ва "в ремонте"
-bool inputBool() {
 
-    bool state;
+template <typename T>
+
+T inputT(T value) {
+
+    T state;
     while (!(cin >> state)) {
         cin.clear();
         cin.ignore(1000, '\n');
         cout << "Try again: ";
-    } 
+    }
     return state;
 }
 
-int inputInt() {
-    int intValue;
-
-    while (!(cin >> intValue)) {
-        cin.clear();
-        cin.ignore(1000, '\n');
-        cout << "Try again: ";
-    }
-    return intValue;
-}
-
-double inputDouble() {
-    double doubleValue;
-    while (!(cin >> doubleValue)) {
-      
-        cin.clear();
-        cin.ignore(1000, '\n');
-        cout << "Try again: ";
-    }
-    return doubleValue;
-}
+//получение индекса 1 или 0 для св-ва "в ремонте"
+//bool inputBool() {
+//
+//    bool state;
+//    while (!(cin >> state)) {
+//        cin.clear();
+//        cin.ignore(1000, '\n');
+//        cout << "Try again: ";
+//    } 
+//    return state;
+//}
+//
+//int inputInt() {
+//    int intValue;
+//
+//    while (!(cin >> intValue)) {
+//        cin.clear();
+//        cin.ignore(1000, '\n');
+//        cout << "Try again: ";
+//    }
+//    return intValue;
+//}
+//
+//double inputDouble() {
+//    double doubleValue;
+//    while (!(cin >> doubleValue)) {
+//      
+//        cin.clear();
+//        cin.ignore(1000, '\n');
+//        cout << "Try again: ";
+//    }
+//    return doubleValue;
+//}
 
 int SaveInformation() {
     int saveItem;
@@ -204,35 +218,10 @@ void SaveToFile(const pipe& pipe, const comprSt& CS) {
             saveCS(CS);
         }
         else {
-        /*if (fout.is_open()) {
-            fout << "PIPE\n" << pipe.km_mark << endl << pipe.length
-                << endl << pipe.diam << endl << pipe.repair << endl;
-            fout << "CS\n" << CS.name << endl << CS.numOfWS
-                << endl << CS.WSinOperation << endl << CS.efficiency << endl;
-            fout.close();
-
-
-        }*/
             savePipe(pipe);
             saveCS(CS);
         }
     }
-
-    /*if ((CS.name == "") && (pipe.km_mark == "")) cout << "Input or load data to save" << endl;
-    else {
-        if ((CS.name == "") && (pipe.km_mark != "")) {
-            savePipe(pipe);
-            cout << "Input or load CS data to save" << endl;
-        }
-        else if ((CS.name != "") && (pipe.km_mark == "")) {
-            saveCS(CS);
-            cout << "Input or load pipe data to save" << endl;
-        }
-        else {
-            saveCS(CS);
-            savePipe(pipe);
-        }
-    }*/
 }
 
 //---------------------ВВОД С КОНСОЛИ-------------------------//
@@ -245,11 +234,11 @@ pipe inputPipe() {
     cin >> ws;
     getline(cin, newPipe.km_mark);
     cout << "Enter the length of the pipe:";
-    newPipe.length = inputDouble();
+    newPipe.length = inputT(0.0);
     cout << "Enter the diametr of the pipe:";
-    newPipe.diam = inputInt();
+    newPipe.diam = inputT(1);
     cout << "Enter 1 if the pipe is under repair otherwise 0:";
-    newPipe.repair = inputBool();
+    newPipe.repair = inputT(true);
     return newPipe;
 }
 //Ввод информации о КС с консоли
@@ -262,21 +251,21 @@ comprSt inputCS() {
     getline(cin, newCS.name);
 
     cout << "Enter the number of WS:";
-    newCS.numOfWS = inputInt();
+    newCS.numOfWS = inputT(1);
 
     cout << "Enter the WS in operation:";
-    newCS.WSinOperation = inputInt();
+    newCS.WSinOperation = inputT(1);
 
     while (1) {
         if (checkNumWSinOperation(newCS.WSinOperation, newCS.numOfWS)) {
             cout << "Enter a number less than or equal to " << newCS.numOfWS << ": ";
-            newCS.WSinOperation = inputInt();
+            newCS.WSinOperation = inputT(1);
         }
         else break;
     }
 
     cout << "Enter efficiency:";
-    newCS.efficiency = inputDouble();
+    newCS.efficiency = inputT(0.0);
     return newCS;
 }
 
@@ -333,7 +322,7 @@ void changeRepair(pipe& pipe) {
 void editCS(comprSt& CS) {
     if (CS.name != "") {
         cout << "Enter '1' to start one workshop and '0 to stop: " << endl;
-        bool sign = inputBool();
+        bool sign = inputT(true);
         if (sign == 1) {
             if (CS.WSinOperation == CS.numOfWS) cout << "all workshops are working" << endl;
             else CS.WSinOperation++;
@@ -352,11 +341,13 @@ istream& operator >> (istream& in, pipe& newPipe) {
     in >> ws;
     getline(in, newPipe.km_mark);
     cout << "Enter the length of the pipe:";
-    newPipe.length = inputDouble();
+    //newPipe.length = inputDouble();
+    newPipe.length = inputT(0.2);
     cout << "Enter the diametr of the pipe:";
-    newPipe.diam = inputInt();
+    //newPipe.diam = inputInt();
+    newPipe.diam = inputT(1);
     cout << "Enter 1 if the pipe is under repair otherwise 0:";
-    newPipe.repair = inputBool();
+    newPipe.repair = inputT(true);
     //return newPipe;
     return in;
 }
@@ -382,7 +373,7 @@ int main()
     while (1)
     {
         printMenu();
-        int i = inputInt();
+        int i = inputT(9);
         switch (i)
         {
         case 1:
