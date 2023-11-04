@@ -127,7 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="comprSt.cpp" />
     <ClCompile Include="Lab_1_Skorzhevskaya.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="comprSt.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
