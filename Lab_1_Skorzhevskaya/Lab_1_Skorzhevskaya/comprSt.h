@@ -1,14 +1,25 @@
 #pragma once
 #include <string>
+#include <fstream>
+
+using namespace std;
+
 class comprSt
 {
-public:
+private:
     int id;
-    std::string name;
+public:
+    int getID() const;
+    void setID(int ID);
+    string name;
     int numOfWS;
     int WSinOperation;
     double efficiency;
-//public:
-//    std::string getName() const;
+    void printCS();
+    void addCS();
+    void saveCS(ofstream& fout);
+    void loadCS();
+    void editCS();
+   // void deleteCS(int ID);
 };
 

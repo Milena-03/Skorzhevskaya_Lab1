@@ -21,9 +21,15 @@
     <ClCompile Include="comprSt.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="pipe.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="comprSt.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
