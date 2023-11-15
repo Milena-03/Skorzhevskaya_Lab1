@@ -9,6 +9,8 @@
 #include "getValue.cpp"
 using namespace std;
 
+
+
 void printMenu() {
     cout << "\n1. Input pipe" << endl
         << "2. Input CS" << endl
@@ -136,7 +138,7 @@ vector<int> findPipebyName(map<int, pipe>& groupPipe, string name) {
     }
     return res;
 }
-vector<int> findCSName(map<int, comprSt>& groupCS, string name) {
+vector<int> findCSbyName(map<int, comprSt>& groupCS, string name) {
     vector <int> res;
 
     for (int i = 0; i < groupCS.size(); i++) {
@@ -631,6 +633,65 @@ void deleteCS(map<int, comprSt> &groupCS) {
     groupCS.erase(index);
 }
 
+void editPipeByName(map<int, pipe>& groupPipe) {
+
+    string nameToSearch;
+    cout << "Enter name to search for pipes: ";
+    cin >> ws;
+    getline(cin, nameToSearch);
+    vector<int> res = findPipebyName(groupPipe, nameToSearch);
+    if (res.size() == 0) {
+        cout << "There are no pipes with this name.\n";
+        return;
+    }
+    for (int i = 0; i < res.size(); i++) {
+        groupPipe[res[i]].editPipe();
+    }
+}
+
+void editPipeByRepair(map<int, pipe>& groupPipe) {
+    bool state;
+    cout << "Enter repair state to search for pipes: ";
+    state = inputT(true);
+    vector<int> res = findPipebyRepair(groupPipe, state);
+    if (res.size() == 0) {
+        cout << "There are no pipes with this repair state.\n";
+        return;
+    }
+    for (int i = 0; i < res.size(); i++) {
+        groupPipe[res[i]].editPipe();
+    }
+}
+
+void editCSByName(map<int, comprSt>& groupCS) {
+    cout << "Enter name to search for CS: ";
+    string nameToSearch;
+    cin >> ws;
+    getline(cin, nameToSearch);
+    vector<int> res = findCSbyName(groupCS, nameToSearch);
+    if (res.size() == 0) {
+        cout << "There are no CS with this name.\n";
+        return;
+    }
+    for (int i = 0; i < res.size(); i++) {
+        groupCS[res[i]].editCS();
+    }
+}
+
+void editCSByPer(map<int, comprSt>& groupCS) {
+    cout << "Enter persent to search for pipes: ";
+    int per;
+    per = inputT(1);
+    vector<int> res = findCSbyPer(groupCS, per);
+    if (res.size() == 0) {
+        cout << "There are no CS with this percent.\n";
+        return;
+    }
+    for (int i = 0; i < res.size(); i++) {
+        groupCS[res[i]].editCS();
+    }
+}
+
 int main()
 {
     /*pipe newPipe;
@@ -674,19 +735,28 @@ int main()
             /*if (newPipe.km_mark != "") changeRepair(newPipe);
             else cout << "Input or load data pipe to edit" << endl;*/
             if (groupPipe.size() != 0) {
-                //changeRepair(groupPipe);
-                /*int index = SelectPipe(groupPipe);
+                /*//changeRepair(groupPipe);
+                int index = SelectPipe(groupPipe);
                 groupPipe[index].editPipe();*/
-                string nameToSearch;
-                cout << "Enter name to search for pipes: ";
-                cin >> nameToSearch;
-                vector<int> res = findPipebyName(groupPipe, nameToSearch);
-                if (res.size() == 0) {
-                    cout << "There are no pipes with this name.\n";
-                    break;
+                
+                cout << "Enter 0 to search by name or 1 to search by repair: ";
+                bool field = inputT(true);
+                if (field == 0) {
+                    /*string nameToSearch;
+                    cout << "Enter name to search for pipes: ";
+                    getline(cin, nameToSearch);
+                    vector<int> res = findPipebyName(groupPipe, nameToSearch);
+                    if (res.size() == 0) {
+                        cout << "There are no pipes with this name.\n";
+                        break;
+                    }
+                    for (int i = 0; i < res.size(); i++) {
+                        groupPipe[res[i]].editPipe();
+                    }*/
+                    editPipeByName(groupPipe);
                 }
-                for (int i = 0; i < res.size(); i++) {
-                    groupPipe[res[i]].editPipe();
+                else {
+                    editPipeByRepair(groupPipe);
                 }
             }
             else cout << "Input or load pipe data to edit" << endl;
@@ -695,9 +765,19 @@ int main()
         case 5:
         {
             if (groupCS.size() != 0){
-                int index = SelectCS(groupCS);
-                groupCS[index].editCS();
-                //editCS(groupCS);
+
+            //    int index = SelectCS(groupCS);
+            //    groupCS[index].editCS();
+            //    //editCS(groupCS);
+            
+                cout << "Enter 0 to search by name or 1 to search by percent: ";
+                bool field = inputT(true);
+                if (field == 0) {
+                    editCSByName(groupCS);
+                }
+                else {
+                    editCSByPer(groupCS);
+                }
             }
             else cout << "Input or load CS data to edit" << endl;
             break;
@@ -719,7 +799,7 @@ int main()
             groupCS[indexCS].loadCS();
             break;
         }
-        case 8:
+        /*case 8:
         {
             for (int i : findPipebyName(groupPipe, "kkk"))
                 groupPipe[i].printPipe();
@@ -730,13 +810,13 @@ int main()
             for (int i : findCSbyPer(groupCS, 38))
                 groupCS[i].printCS();
             break;
-        }
-        case 10:
+        }*/
+        case 9:
         {
             deletePipe(groupPipe);
             break;
         }
-        case 11:
+        case 10:
         {
             deleteCS(groupCS);
             break;
