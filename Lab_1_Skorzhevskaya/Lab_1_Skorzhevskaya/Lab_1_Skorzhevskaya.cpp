@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <vector>
 //#include <typeinfo>
 #include "comprSt.h"
 #include "pipe.h"
@@ -124,6 +125,44 @@ int SelectCS(map<int, comprSt> groupCS) {
         cout << "enter correct number: ";
     }
 
+}
+
+vector<int> findPipebyName(map<int, pipe>& groupPipe, string name) {
+    vector <int> res;
+
+    for (int i = 0; i < groupPipe.size(); i++) {
+        if (groupPipe[i].km_mark == name)
+            res.push_back(i);
+    }
+    return res;
+}
+vector<int> findCSName(map<int, comprSt>& groupCS, string name) {
+    vector <int> res;
+
+    for (int i = 0; i < groupCS.size(); i++) {
+        if (groupCS[i].name == name)
+            res.push_back(i);
+    }
+    return res;
+}
+vector<int> findPipebyRepair(map<int, pipe>& groupPipe, bool repair) {
+    vector <int> res;
+
+    for (int i = 0; i < groupPipe.size(); i++) {
+        if (groupPipe[i].repair == repair)
+            res.push_back(i);
+    }
+    return res;
+}
+vector<int> findCSbyPer(map<int, comprSt>& groupCS, int per) {
+    vector <int> res;
+
+    for (int i = 0; i < groupCS.size(); i++) {
+        int k = round((100.0 * (groupCS[i].numOfWS - groupCS[i].WSinOperation)) / groupCS[i].numOfWS);
+        if (k == per)
+            res.push_back(i);
+    }
+    return res;
 }
 
 ////------------------ЗАГРУЗКА ИЗ ФАЙЛА----------------------//
@@ -636,8 +675,19 @@ int main()
             else cout << "Input or load data pipe to edit" << endl;*/
             if (groupPipe.size() != 0) {
                 //changeRepair(groupPipe);
-                int index = SelectPipe(groupPipe);
-                groupPipe[index].editPipe();
+                /*int index = SelectPipe(groupPipe);
+                groupPipe[index].editPipe();*/
+                string nameToSearch;
+                cout << "Enter name to search for pipes: ";
+                cin >> nameToSearch;
+                vector<int> res = findPipebyName(groupPipe, nameToSearch);
+                if (res.size() == 0) {
+                    cout << "There are no pipes with this name.\n";
+                    break;
+                }
+                for (int i = 0; i < res.size(); i++) {
+                    groupPipe[res[i]].editPipe();
+                }
             }
             else cout << "Input or load pipe data to edit" << endl;
             break;
@@ -671,10 +721,22 @@ int main()
         }
         case 8:
         {
-            deletePipe(groupPipe);
+            for (int i : findPipebyName(groupPipe, "kkk"))
+                groupPipe[i].printPipe();
             break;
         }
         case 9:
+        {
+            for (int i : findCSbyPer(groupCS, 38))
+                groupCS[i].printCS();
+            break;
+        }
+        case 10:
+        {
+            deletePipe(groupPipe);
+            break;
+        }
+        case 11:
         {
             deleteCS(groupCS);
             break;
