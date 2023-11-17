@@ -3,7 +3,7 @@
 #include <string>
 #include <map>
 #include <vector>
-//#include <typeinfo>
+#include <unordered_set>
 #include "comprSt.h"
 #include "pipe.h"
 #include "getValue.cpp"
@@ -94,6 +94,8 @@ void printMenu() {
 ////    }
 ////
 ////}
+
+//--------------------------ВЫБОР ТРУБЫ/КС--------------------------//
 int SelectPipe(map<int, pipe> groupPipe) {
     cout << "enter pipe id: ";
     while (1) {
@@ -129,6 +131,7 @@ int SelectCS(map<int, comprSt> groupCS) {
 
 }
 
+//--------------ПОИСК ТРУБ/КС ПО ЗАДАННОМУ ФИЛЬТРУ-------------------//
 vector<int> findPipebyName(map<int, pipe>& groupPipe, string name) {
     vector <int> res;
 
@@ -339,6 +342,8 @@ vector<int> findCSbyPer(map<int, comprSt>& groupCS, int per) {
 ////        fout.close();
 ////    }
 ////}
+
+//------------------------СОХРАНЕНИЕ В ФАЙЛ-----------------------------//
 void SaveToFile(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
     //ofstream fout;
     //fout.open("data.txt", ios::out);
@@ -522,6 +527,7 @@ void SaveToFile(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
 //    printCS(CS);
 //}*/
 
+//----------------------ВЫВОД ТРУЬЫ/КС НА КОНСОЛЬ---------------------------//
 void printAllObj(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
     //cout << "\nPipe information" << endl;
     //printPipe(pipe);
@@ -622,7 +628,7 @@ void pushBackCS(map<int, comprSt> &groupCS, comprSt newCS) {
     groupCS[key+1] = newCS;
 }
 
-//-------------------УДАЛЕНИЕ ТРУБЫ/КС--------------------//
+//---------------------УДАЛЕНИЕ ТРУБЫ/КС-----------------------//
 void deletePipe(map<int, pipe> &groupPipe) {
     int index = SelectPipe(groupPipe);
     groupPipe.erase(index);
@@ -633,7 +639,8 @@ void deleteCS(map<int, comprSt> &groupCS) {
     groupCS.erase(index);
 }
 
-void editPipeByName(map<int, pipe>& groupPipe) {
+//-----------------ПАКЕТНОЕ РЕДАКТИРОВАНИЕ ТРУБ/КС
+vector<int> editPipeByName(map<int, pipe>& groupPipe) {
 
     string nameToSearch;
     cout << "Enter name to search for pipes: ";
@@ -642,28 +649,31 @@ void editPipeByName(map<int, pipe>& groupPipe) {
     vector<int> res = findPipebyName(groupPipe, nameToSearch);
     if (res.size() == 0) {
         cout << "There are no pipes with this name.\n";
-        return;
+        return res;
     }
     for (int i = 0; i < res.size(); i++) {
         groupPipe[res[i]].editPipe();
     }
+    return res;
 }
 
-void editPipeByRepair(map<int, pipe>& groupPipe) {
+ vector<int>editPipeByRepair(map<int, pipe>& groupPipe) {
     bool state;
     cout << "Enter repair state to search for pipes: ";
     state = inputT(true);
     vector<int> res = findPipebyRepair(groupPipe, state);
     if (res.size() == 0) {
         cout << "There are no pipes with this repair state.\n";
-        return;
+        return res;
     }
     for (int i = 0; i < res.size(); i++) {
         groupPipe[res[i]].editPipe();
     }
+
+    return res;
 }
 
-void editCSByName(map<int, comprSt>& groupCS) {
+vector<int> editCSByName(map<int, comprSt>& groupCS) {
     cout << "Enter name to search for CS: ";
     string nameToSearch;
     cin >> ws;
@@ -671,25 +681,27 @@ void editCSByName(map<int, comprSt>& groupCS) {
     vector<int> res = findCSbyName(groupCS, nameToSearch);
     if (res.size() == 0) {
         cout << "There are no CS with this name.\n";
-        return;
+        return res;
     }
     for (int i = 0; i < res.size(); i++) {
         groupCS[res[i]].editCS();
     }
+    return res;
 }
 
-void editCSByPer(map<int, comprSt>& groupCS) {
+vector<int> editCSByPer(map<int, comprSt>& groupCS) {
     cout << "Enter persent to search for pipes: ";
     int per;
     per = inputT(1);
     vector<int> res = findCSbyPer(groupCS, per);
     if (res.size() == 0) {
         cout << "There are no CS with this percent.\n";
-        return;
+        return res;
     }
     for (int i = 0; i < res.size(); i++) {
         groupCS[res[i]].editCS();
     }
+    return res;
 }
 
 int main()
@@ -700,6 +712,8 @@ int main()
     map<int, comprSt> groupCS;
     map<int, pipe> groupPipe;
 
+    //unordered_set <string> log;
+    vector <string> log;
     while (1)
     {
         printMenu();
@@ -713,6 +727,10 @@ int main()
             //cin >> newPipe1;
             newPipe.addPipe();
             pushBackPipe(groupPipe, newPipe);
+            int ind = groupPipe.size()-1;
+            int ID = groupPipe[ind].getID();
+            log.push_back("Add pipe with id = " + to_string(ID));
+            //cout << log[0];
             break;
         }
         case 2:
@@ -721,17 +739,22 @@ int main()
             //cin >> newCS;
             newCS.addCS();
             pushBackCS(groupCS, newCS);
+            int ind = groupCS.size() - 1;
+            int ID = groupCS[ind].getID();
+            log.push_back("Add CS with id = " + to_string(ID));
             break;
         }
         case 3:
         {
             printAllObj(groupPipe, groupCS);
+            log.push_back("print all object");
            //printAllObj(newPipe, newCS);
            // cout << SelectPipe(groupPipe) << endl;
             break;
         }
         case 4:
         {
+            vector<int> res;
             /*if (newPipe.km_mark != "") changeRepair(newPipe);
             else cout << "Input or load data pipe to edit" << endl;*/
             if (groupPipe.size() != 0) {
@@ -753,39 +776,67 @@ int main()
                     for (int i = 0; i < res.size(); i++) {
                         groupPipe[res[i]].editPipe();
                     }*/
-                    editPipeByName(groupPipe);
+                    res = editPipeByName(groupPipe);
+
                 }
                 else {
-                    editPipeByRepair(groupPipe);
+                    res = editPipeByRepair(groupPipe);
+                }
+                string ans = "";
+                for (int i = 0; i < res.size(); i++) {
+                    ans = ans + to_string(res[i]);
+                }
+                if (ans != "") {
+                    log.push_back("Edit pipes" + ans);
+                }
+                else {
+                    log.push_back("parametr not found");
                 }
             }
-            else cout << "Input or load pipe data to edit" << endl;
+            else {
+                cout << "Input or load pipe data to edit" << endl;
+                log.push_back("failed to change pipes");
+            }
             break;
         }
         case 5:
         {
+            vector<int> res;
             if (groupCS.size() != 0){
-
             //    int index = SelectCS(groupCS);
             //    groupCS[index].editCS();
-            //    //editCS(groupCS);
-            
+            //    //editCS(groupCS);          
                 cout << "Enter 0 to search by name or 1 to search by percent: ";
                 bool field = inputT(true);
                 if (field == 0) {
-                    editCSByName(groupCS);
+                    res = editCSByName(groupCS);
                 }
                 else {
-                    editCSByPer(groupCS);
+                    res = editCSByPer(groupCS);
+                }
+                string ans = "";
+                for (int i = 0; i < res.size(); i++) {
+                    ans = ans + to_string(res[i]);
+                }
+                if (ans != "") {
+                    log.push_back("Edit CS" + ans);
+                }
+                else {
+                    log.push_back("parametr not found");
                 }
             }
-            else cout << "Input or load CS data to edit" << endl;
+            else {
+                cout << "Input or load CS data to edit" << endl;
+                log.push_back("failed to change pipes");
+            }
             break;
         }
         case 6:
         {
             SaveToFile(groupPipe, groupCS);
+            log.push_back("Save pipes and CS to file");
             break;
+
         }
         case 7:
         {
@@ -797,6 +848,7 @@ int main()
             groupPipe[indexP].loadPipe();
             int indexCS = SelectCS(groupCS);
             groupCS[indexCS].loadCS();
+            log.push_back("Load pipes and CS from file");
             break;
         }
         /*case 8:
@@ -814,15 +866,23 @@ int main()
         case 9:
         {
             deletePipe(groupPipe);
+            log.push_back("Delete pipe");
             break;
         }
         case 10:
         {
             deleteCS(groupCS);
+            log.push_back("Delete CS");
             break;
         }
         case 0:
         {
+            log.push_back("End programm");
+            ofstream fout("log.txt");
+            for (int i = 0; i < log.size(); i++) {
+                fout << log[i] << endl;
+                cout << log[i] << endl;
+            }
             return 0;
         }
         default:
