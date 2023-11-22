@@ -1,0 +1,3 @@
+Load pipes and CS from filedata_2
+print all object
+End programm

@@ -9,7 +9,7 @@
 #include "getValue.cpp"
 using namespace std;
 
-
+string FILENAME;
 
 void printMenu() {
     cout << "\n1. Input pipe" << endl
@@ -95,6 +95,41 @@ void printMenu() {
 ////
 ////}
 
+//----------------ДОБАВЛЕНИЕ ТРУБЫ/КС В MAP------------------------//
+
+void pushBackPipe(map<int, pipe>& groupPipe, pipe newPipe) {
+    if (groupPipe.empty()) {
+        newPipe.setID(0);
+        groupPipe[0] = newPipe;
+        return;
+    }
+    //map<int, pipe>::iterator itEnd;
+    //itEnd = groupPipe.end();
+    int key = groupPipe.rbegin()->first;
+    newPipe.setID(key + 1);
+    groupPipe[key + 1] = newPipe;
+    /*for (int i = 0; i < groupPipe.size()+1; i++) {
+        if (groupPipe.count(i) != 0) {
+            continue;
+        }
+        else {
+            groupPipe[i] = newPipe;
+            return;
+        }
+    }*/
+}
+void pushBackCS(map<int, comprSt>& groupCS, comprSt newCS) {
+    if (groupCS.empty()) {
+        newCS.setID(0);
+        groupCS[0] = newCS;
+        return;
+    }
+
+    int key = groupCS.rbegin()->first;
+    newCS.setID(key + 1);
+    //newCS.id = key + 1;
+    groupCS[key + 1] = newCS;
+}
 //--------------------------ВЫБОР ТРУБЫ/КС--------------------------//
 int SelectPipe(map<int, pipe> groupPipe) {
     cout << "enter pipe id: ";
@@ -170,72 +205,124 @@ vector<int> findCSbyPer(map<int, comprSt>& groupCS, int per) {
     return res;
 }
 
+void checkPipe(map<int, pipe>& groupPipe, pipe newPipe) {
+    for (auto const& p : groupPipe) {
+        if (groupPipe[p.first].getID() == newPipe.getID()) {
+            groupPipe[p.first] = newPipe;
+            return;
+        }
+    }
+    pushBackPipe(groupPipe, newPipe);
+}
+void checkCS(map<int, comprSt>& groupCS, comprSt newCS) {
+    for (auto const& CS : groupCS) {
+        if (groupCS[CS.first].getID() == newCS.getID()) {
+            groupCS[CS.first] = newCS;
+            return;
+        }
+        /*else {
+            pushBackCS(groupCS, newCS);
+        }*/
+    }
+    pushBackCS(groupCS, newCS);
+}
+
 ////------------------ЗАГРУЗКА ИЗ ФАЙЛА----------------------//
 //
-////загрузкa информации о трубе из файла
-//pipe loadPipe() {
+//загрузкa информации о трубе из файла
+//pipe loadPipe(ifstream& fin) {
 //
 //    pipe newPipe;
-//    ifstream fin;
-//    string marker;
-//    bool flag = 0;  
-//    fin.open("data.txt", ios::in);
+//    int ID;
+//    //ifstream fin;
+//    //string marker;
+//    //bool flag = 0;  
+//    //fin.open("data.txt", ios::in);
 //
-//    if (fin.is_open())
+//    /*//if (fin.is_open())
 //    {
 //        while (!fin.eof()) {
 //            fin >> marker;
-//            if (marker == "PIPE") {
-//                fin >> ws;
-//                fin >> newPipe.id;
-//                getline(fin, newPipe.km_mark);
-//                fin >> newPipe.length;
-//                fin >> newPipe.diam;
-//                fin >> newPipe.repair;
-//                fin.close();
-//                flag = 1;
+//            if (marker == "PIPE") {*/
+//    fin >> ws;
+//    getline(fin, newPipe.km_mark);
+//    fin >> ID;
+//    newPipe.setID(ID);
+//    fin >> newPipe.length;
+//    fin >> newPipe.diam;
+//    fin >> newPipe.repair;
+//    fin.close();
+//                /*//flag = 1;
 //                break;
 //            }
 //        }
-//        if (!flag) cout << "save the pipe data to a file" << endl;
-//    }
-//    else if (!fin.is_open()) {
-//        cout << "Error! The file data.txt does not exist" << endl;
-//    }
+//    //    if (!flag) cout << "save the pipe data to a file" << endl;
+//    //
+//    ////}
+//    //else if (!fin.is_open()) {
+//    //    cout << "Error! The file data.txt does not exist" << endl;
+//    //}*/
 //    return newPipe;
 //}
-////загрузкa информации о КС из файла
-///*********************************************************************
-//comprSt loadCS() {
-//    int id;
+//загрузкa информации о КС из файла
+//*********************************************************************
+//!!!!comprSt loadCS(ifstream& fin) {
 //    comprSt newCS;
-//    ifstream fin;
+//    int ID;
+//    /*ifstream fin;
 //    string marker;
-//    bool flag = 0;
-//    fin.open("data.txt", ios::in);
+//    bool flag = 0;*/
+//    /*fin.open("data.txt", ios::in);
 //    if (fin.is_open())
 //    {
 //        while (!fin.eof()) {
 //            fin >> marker;
-//            if (marker == "CS") {
+//            if (marker == "CS") {*/
 //                fin >> ws;
-//                fin >> id;
-//                newCS.setID(id);
 //                getline(fin, newCS.name);
+//                fin >> ID;
+//                newCS.setID(ID);
 //                fin >> newCS.numOfWS;
 //                fin >> newCS.WSinOperation;
 //                fin >> newCS.efficiency;
 //                fin.close();
-//                flag = 1;
-//                break;
-//            }
-//        }if (!flag) cout << "save the CS data to a file" << endl;
-//    }
+//            //}
+//        //}if (!flag) cout << "save the CS data to a file" << endl;
+//    /*}
 //    else if (!fin.is_open()) {
 //        cout << "Error! The file data.txt does not exist" << endl;
-//    }
+//    }*/
 //    return newCS;
-//}*******************************************************************/
+//}
+//*********************************************************************
+comprSt loadCS(ifstream& fin) {
+    comprSt newCS;
+    int ID;
+    //ifstream fin;
+    string marker;
+    bool flag = 0;
+    //fin.open(FILENAME, ios::in);
+    if (fin.is_open())
+    {
+        while (!fin.eof()) {
+            fin >> marker;
+            if (marker == "CS") {
+                fin >> ws;
+                getline(fin, newCS.name);
+                fin >> ID;
+                newCS.setID(ID);
+                fin >> newCS.numOfWS;
+                fin >> newCS.WSinOperation;
+                fin >> newCS.efficiency;
+                fin.close();
+            }
+        }if (!flag) cout << "save the CS data to a file" << endl;
+    }
+    else if (!fin.is_open()) {
+        cout << "Error! The file data.txt does not exist" << endl;
+    }
+    return newCS;
+}
 //
 ////-------------------СОХРАНЕНИЕ В ФАЙЛ-------------------------//
 //
@@ -343,6 +430,79 @@ vector<int> findCSbyPer(map<int, comprSt>& groupCS, int per) {
 ////    }
 ////}
 
+void loadFromFile(map<int, pipe>& groupPipe, map<int, comprSt>& groupCS) {
+    cout << "Enter name of file to load:";
+    cin >> FILENAME;
+    ifstream fin(FILENAME);;
+    //fin.open
+    string marker;
+    bool flagP = 0;
+    bool flagCS = 0;
+    //if (fin.is_open())
+    //{
+        //while (!fin.eof()) {
+        //    getline(fin, marker);
+        //    if (marker == "PIPE")
+        //    {
+        //        pipe newPipe;
+        //        //pushBackPipe(groupPipe, loadPipe(fin));
+        //        //checkPipe(groupPipe, loadPipe(fin));
+        //        newPipe.loadPipe(fin);
+        //        checkPipe(groupPipe, newPipe);
+        //        flagP = 1;
+        //    }
+        //    if (marker == "CS") {
+        //        //pushBackCS(groupCS, loadCS(fin));
+        //        checkCS(groupCS, loadCS(fin));
+        //        flagCS = 1;
+        //    }
+        //}
+        //if (!flagP) cout << "save the pipe data to a file" << endl;
+        //if (!flagCS) cout << "save the CS data to a file" << endl;
+    //if (fin.peek() == std::ifstream::traits_type::eof()) {  // óñëîâèå ïóñòîòû ôàéëà
+    //    cout << "Ôàéëà íå ñóùåñòâóåò!\n";
+    //}
+    //else {
+    if(fin.is_open()){
+        while (!fin.eof()) {
+            fin >> marker;
+            if (marker == "PIPE") {
+                pipe newPipe;
+                newPipe.loadPipe(fin);
+                checkPipe(groupPipe, newPipe);
+                flagP = 1;
+            }
+            if (marker == "CS") {
+                comprSt newCS;
+                newCS.loadCS(fin);
+                checkCS(groupCS, newCS);
+                flagCS = 1;
+            }
+        }
+        if (!flagP) cout << "save the pipe data to a file" << endl;
+        if (!flagCS) cout << "save the CS data to a file" << endl;
+    }else {
+        cout << "Error! The file " << FILENAME <<" does not exist" << endl;
+    }
+        //pipe newPipe;
+        //comprSt newCS;
+
+    
+        ////newPipe.loadPipe(fin);
+        ////newCS.loadCS(fin);
+        //newPipe.loadPipe(FILENAME);
+        //newCS.loadCS(FILENAME);
+        
+        
+
+    //}
+    
+    /*int indexP = SelectPipe(groupPipe);
+    groupPipe[indexP].loadPipe();
+    int indexCS = SelectCS(groupCS);
+    groupCS[indexCS].loadCS();*/
+}
+
 //------------------------СОХРАНЕНИЕ В ФАЙЛ-----------------------------//
 void SaveToFile(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
     //ofstream fout;
@@ -350,8 +510,9 @@ void SaveToFile(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
 
     if (groupPipe.size() == 0 && groupCS.size()==0) cout << "Input or load data to save" << endl;
     else {
-        
-        ofstream fout("data.txt");
+        cout << "Enter name of file to save:";
+        cin >> FILENAME;
+        ofstream fout(FILENAME);
         /*ofstream fout;
         fout.open("data.txt", ios::app);*/
         /*if (groupCS.size() == 0) {
@@ -365,20 +526,29 @@ void SaveToFile(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
             saveCS(CS, fout);
         }*/
         if (groupPipe.size() != 0) {
-            int indPipe = SelectPipe(groupPipe);
-            pipe pipe = groupPipe[indPipe];
+            //int indPipe = SelectPipe(groupPipe);
+            //pipe pipe = groupPipe[indPipe];
             //savePipe(pipe, fout);
-            pipe.savePipe(fout);
+            for (auto const& pipe : groupPipe) {
+                if (groupPipe[pipe.first].km_mark != "") {
+                    groupPipe[pipe.first].savePipe(fout);
+                } 
+            }           
         }
         if (groupCS.size() != 0) {
-            int indCS = SelectCS(groupCS);
+            /*int indCS = SelectCS(groupCS);
             comprSt CS = groupCS[indCS];
-            //saveCS(CS, fout);
-            CS.saveCS(fout);
+            //saveCS(CS, fout);*/
+            for (auto const& CS : groupCS) {
+                if (groupCS[CS.first].name != "") {
+                    groupCS[CS.first].saveCS(fout);
+                }           
+            }
         }
         fout.close();
     }
 }
+
 
 ////---------------------ВВОД С КОНСОЛИ-------------------------//
 //
@@ -592,42 +762,6 @@ void printAllObj(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
 //***************************************************************************/
 //-----------МЕНЮ------------//
 
-//----------------ДОБАВЛЕНИЕ ТРУБЫ/КС В MAP------------------------//
-
-void pushBackPipe(map<int, pipe> &groupPipe, pipe newPipe) {
-    if (groupPipe.empty()) {
-        newPipe.setID(0);
-        groupPipe[0] = newPipe;
-        return;
-    }
-    //map<int, pipe>::iterator itEnd;
-    //itEnd = groupPipe.end();
-    int key = groupPipe.rbegin()->first;
-    newPipe.setID(key + 1);
-    groupPipe[key+1] = newPipe;
-    /*for (int i = 0; i < groupPipe.size()+1; i++) {
-        if (groupPipe.count(i) != 0) {
-            continue;
-        }
-        else {
-            groupPipe[i] = newPipe;
-            return;
-        }
-    }*/
-}
-void pushBackCS(map<int, comprSt> &groupCS, comprSt newCS) {
-    if (groupCS.empty()) {
-        newCS.setID(0);
-        groupCS[0] = newCS;
-        return;
-    }
-    
-    int key = groupCS.rbegin()->first;
-    newCS.setID(key + 1);
-    //newCS.id = key + 1;
-    groupCS[key+1] = newCS;
-}
-
 //---------------------УДАЛЕНИЕ ТРУБЫ/КС-----------------------//
 void deletePipe(map<int, pipe> &groupPipe) {
     int index = SelectPipe(groupPipe);
@@ -787,7 +921,7 @@ int main()
                     ans = ans + to_string(res[i]);
                 }
                 if (ans != "") {
-                    log.push_back("Edit pipes" + ans);
+                    log.push_back("Edit pipes " + ans);
                 }
                 else {
                     log.push_back("parametr not found");
@@ -819,7 +953,7 @@ int main()
                     ans = ans + to_string(res[i]);
                 }
                 if (ans != "") {
-                    log.push_back("Edit CS" + ans);
+                    log.push_back("Edit CS " + ans);
                 }
                 else {
                     log.push_back("parametr not found");
@@ -834,7 +968,7 @@ int main()
         case 6:
         {
             SaveToFile(groupPipe, groupCS);
-            log.push_back("Save pipes and CS to file");
+            log.push_back("Save pipes and CS to file" + FILENAME);
             break;
 
         }
@@ -844,11 +978,13 @@ int main()
             //newCS = loadCS();
             /*newPipe.loadPipe();
             newCS.loadCS();*/
-            int indexP = SelectPipe(groupPipe);
+
+            loadFromFile(groupPipe, groupCS);
+            /*int indexP = SelectPipe(groupPipe);
             groupPipe[indexP].loadPipe();
             int indexCS = SelectCS(groupCS);
-            groupCS[indexCS].loadCS();
-            log.push_back("Load pipes and CS from file");
+            groupCS[indexCS].loadCS();*/
+            log.push_back("Load pipes and CS from file" + FILENAME);
             break;
         }
         /*case 8:
@@ -863,13 +999,13 @@ int main()
                 groupCS[i].printCS();
             break;
         }*/
-        case 9:
+        case 8:
         {
             deletePipe(groupPipe);
             log.push_back("Delete pipe");
             break;
         }
-        case 10:
+        case 9:
         {
             deleteCS(groupCS);
             log.push_back("Delete CS");

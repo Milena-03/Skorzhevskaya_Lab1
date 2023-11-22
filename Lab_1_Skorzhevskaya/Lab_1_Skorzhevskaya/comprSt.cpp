@@ -52,38 +52,40 @@ void comprSt::printCS()
 void comprSt::saveCS(ofstream& fout) {
 
     if (fout.is_open()) {
-        fout << "CS\n" << name << endl << numOfWS
+        fout << "CS\n" << id << endl << name << endl << numOfWS
             << endl << WSinOperation << endl << efficiency << endl;
     }
 }
 //Загрузка КС из файла
-void comprSt::loadCS() {
-    int id;
-    comprSt newCS;
-    ifstream fin;
-    string marker;
-    bool flag = 0;
-    fin.open("data.txt", ios::in);
-    if (fin.is_open())
-    {
-        while (!fin.eof()) {
-            fin >> marker;
-            if (marker == "CS") {
-                fin >> ws;
+void comprSt::loadCS(ifstream& fin) {
+    //int id;
+    //comprSt newCS;
+    //ifstream fin;
+    //string marker;
+    //bool flag = 0;
+    //fin.open(FILENAME, ios::in);
+    //if (fin.is_open())
+    //{
+    //    while (!fin.eof()) {
+    //        fin >> marker;
+    //        if (marker == "CS") {
+                
                 fin >> id;
+                fin >> ws;
                 getline(fin, name);
+                //fin >> name;
                 fin >> numOfWS;
                 fin >> WSinOperation;
                 fin >> efficiency;
-                fin.close();
-                flag = 1;
-                break;
-            }
-        }if (!flag) cout << "save the CS data to a file" << endl;
-    }
+    //            fin.close();
+                //flag = 1;
+    //            break;
+    //        }
+    //    }if (!flag) cout << "save the CS data to a file" << endl;
+    /*}
     else if (!fin.is_open()) {
-        cout << "Error! The file data.txt does not exist" << endl;
-    }
+       cout << "Error! The file data.txt does not exist" << endl;
+    }*/
 }
 //Изменение КС
 void comprSt::editCS() {

@@ -40,17 +40,40 @@ void pipe::printPipe()
     }
 }
 
-void pipe::loadPipe()
+void pipe::loadPipe(ifstream& fin)
 {
-    pipe newPipe;
-    ifstream fin;
-    string marker;
-    bool flag = 0;
-    fin.open("data.txt", ios::in);
+    //pipe newPipe;
+    /*ifstream fin;
+    string marker;*/
+    //bool flag = 0;
+    //fin.open(FILENAME, ios::in);
 
-    if (fin.is_open())
+    //if (fin.is_open())
+    //{
+    //    while (!fin.eof()) {
+    //        fin >> marker;
+    //        if (marker == "PIPE") {
+                
+                fin >> id;
+                fin >> ws;
+                getline(fin, km_mark);
+                //fin >> km_mark;
+                fin >> length;
+                fin >> diam;
+                fin >> repair;
+    //            fin.close();
+                //flag = 1;
+    //            break;
+    //        }
+    //    }
+    //    if (!flag) cout << "save the pipe data to a file" << endl;
+    /*}
+    else if (!fin.is_open()) {
+        cout << "Error! The file data.txt does not exist" << endl;
+    }*/
+    /*if (fin.is_open())
     {
-        while (!fin.eof()) {
+    
             fin >> marker;
             if (marker == "PIPE") {
                 fin >> ws;
@@ -61,20 +84,26 @@ void pipe::loadPipe()
                 fin >> repair;
                 fin.close();
                 flag = 1;
-                break;
             }
-        }
         if (!flag) cout << "save the pipe data to a file" << endl;
     }
     else if (!fin.is_open()) {
         cout << "Error! The file data.txt does not exist" << endl;
-    }
+    }*/
+
+    ////fin >> ws;
+    //getline(fin, km_mark);
+    //fin >> id;
+    //fin >> length;
+    //fin >> diam;
+    //fin >> repair;
+    //fin.close();
 }
 
 void pipe::savePipe(ofstream& fout)
 {
     if (fout.is_open()) {
-        fout << "PIPE\n" << km_mark << endl << length
+        fout << "PIPE\n" << id << endl<< km_mark << endl << length
             << endl << diam << endl << repair << endl;
     }
 }

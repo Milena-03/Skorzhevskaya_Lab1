@@ -18,7 +18,8 @@ public:
     bool repair;
     void addPipe();
     void printPipe();
-    void loadPipe();
+    //void loadPipe(string FILENAME);
+    void loadPipe(ifstream& fin);
     void savePipe(ofstream& fout);
     void editPipe();
 };

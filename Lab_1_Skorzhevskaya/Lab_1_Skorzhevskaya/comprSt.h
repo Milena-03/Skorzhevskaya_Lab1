@@ -18,7 +18,8 @@ public:
     void printCS();
     void addCS();
     void saveCS(ofstream& fout);
-    void loadCS();
+    //void loadCS(string FILENAME);
+    void loadCS(ifstream& fin);
     void editCS();
    // void deleteCS(int ID);
 };
