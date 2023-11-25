@@ -1,26 +1,34 @@
 #include "comprSt.h"
 #include <iostream>
 #include <fstream>
-#include "getValue.cpp"
+
+#include "utils.h"
 #include "check.cpp"
 
 using namespace std;
+
+int comprSt::maxCSID = 1;
+
+comprSt::comprSt() {
+    id = 0;
+    name = "";
+    numOfWS = 0;
+    WSinOperation = 0;
+    efficiency = 0;
+}
 
 int comprSt::getID() const
 {
 	return id;
 }
 
-void comprSt::setID(int ID)
-{
-	this -> id = ID;
-}
-
 //добавление КС с консоли
 void comprSt::addCS() {
+    id = maxCSID;
     cout << "Enter the name of the CS:";
     cin >> ws;
     getline(cin, name);
+    cerr << name << endl;
     cout << "Enter the number of WS:";
     numOfWS = inputT(1);
     cout << "Enter the WS in operation:";
@@ -48,45 +56,6 @@ void comprSt::printCS()
         cout << "efficiency: " << efficiency << endl;
     }
 }
-//Сохранение КС в файл
-void comprSt::saveCS(ofstream& fout) {
-
-    if (fout.is_open()) {
-        fout << "CS\n" << id << endl << name << endl << numOfWS
-            << endl << WSinOperation << endl << efficiency << endl;
-    }
-}
-//Загрузка КС из файла
-void comprSt::loadCS(ifstream& fin) {
-    //int id;
-    //comprSt newCS;
-    //ifstream fin;
-    //string marker;
-    //bool flag = 0;
-    //fin.open(FILENAME, ios::in);
-    //if (fin.is_open())
-    //{
-    //    while (!fin.eof()) {
-    //        fin >> marker;
-    //        if (marker == "CS") {
-                
-                fin >> id;
-                fin >> ws;
-                getline(fin, name);
-                //fin >> name;
-                fin >> numOfWS;
-                fin >> WSinOperation;
-                fin >> efficiency;
-    //            fin.close();
-                //flag = 1;
-    //            break;
-    //        }
-    //    }if (!flag) cout << "save the CS data to a file" << endl;
-    /*}
-    else if (!fin.is_open()) {
-       cout << "Error! The file data.txt does not exist" << endl;
-    }*/
-}
 //Изменение КС
 void comprSt::editCS() {
 
@@ -100,4 +69,22 @@ void comprSt::editCS() {
         if (WSinOperation == 0) cout << "all workshops are stopped" << endl;
         else WSinOperation--;
     }
+}
+//Сохранение КС в файл
+void comprSt::saveCS(ofstream& fout) {
+
+    if (fout.is_open()) {
+        fout << "CS\n" << name << endl << numOfWS
+            << endl << WSinOperation << endl << efficiency << endl;
+    }
+}
+//Загрузка КС из файла
+void comprSt::loadCS(ifstream& fin) {
+                
+    id = maxCSID;
+    fin >> ws;
+    getline(fin, name);
+    fin >> numOfWS;
+    fin >> WSinOperation;
+    fin >> efficiency;
 }

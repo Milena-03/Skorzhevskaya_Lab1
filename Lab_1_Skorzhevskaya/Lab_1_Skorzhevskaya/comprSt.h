@@ -9,18 +9,17 @@ class comprSt
 private:
     int id;
 public:
+    static int maxCSID;
+    comprSt();
     int getID() const;
-    void setID(int ID);
     string name;
     int numOfWS;
     int WSinOperation;
     double efficiency;
-    void printCS();
     void addCS();
-    void saveCS(ofstream& fout);
-    //void loadCS(string FILENAME);
-    void loadCS(ifstream& fin);
+    void printCS();
     void editCS();
-   // void deleteCS(int ID);
+    void saveCS(ofstream& fout);
+    void loadCS(ifstream& fin);
 };
 
