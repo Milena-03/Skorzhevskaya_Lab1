@@ -56,6 +56,15 @@ vector<int> findPipebyName(map<int, pipe>& groupPipe, string name) {
     }
     return res;
 }
+vector<int> findPipeByDiam(map<int, pipe>& groupPipe, int diam) {
+    vector <int> res;
+
+    for (int i = 0; i < groupPipe.size(); i++) {
+        if (groupPipe[i].diam == diam)
+            res.push_back(i);
+    }
+    return res;
+}
 vector<int> findPipebyRepair(map<int, pipe>& groupPipe, bool repair) {
     vector <int> res;
 
@@ -96,16 +105,16 @@ void pushCS(map<int, comprSt>& groupCS, comprSt newCS) {
 }
 
 void loadFromFile(map<int, pipe>& groupPipe, map<int, comprSt>& groupCS) {
-    string FILENAME;
+    string FILENAME, marker;
     cout << "Enter name of file to load:";
     cin >> FILENAME;
     cerr << FILENAME << endl;
     ifstream fin(FILENAME);
-    string marker;
-    bool flagP = 0;
-    bool flagCS = 0;
+    bool flagP = 0, flagCS = 0;
     groupPipe.erase(groupPipe.begin(), groupPipe.end());
     groupCS.erase(groupCS.begin(), groupCS.end());
+    pipe::maxPipeID = 1;
+    comprSt::maxCSID = 1;
     if(fin.is_open()){
         while (!fin.eof()) {
             fin >> marker;
@@ -119,7 +128,6 @@ void loadFromFile(map<int, pipe>& groupPipe, map<int, comprSt>& groupCS) {
                 comprSt newCS;
                 newCS.loadCS(fin);
                 pushCS(groupCS, newCS);
-                //checkCS(groupCS, newCS);
                 flagCS = 1;
             }
         }
@@ -246,6 +254,26 @@ void editCSByPer(map<int, comprSt>& groupCS) {
     }
 }
 
+//void creatingMatrix(map<int, comprSt>& groupCS, vector <vector <vector<int>> &matrix) {
+//    //vector <vector <int>> matrix;
+//    int lastKey = groupCS.rbegin()->first;
+//    for (int i = 0; i < lastKey; i++) {
+//        for (int j; j < lastKey; j++) {
+//            matrix[i][j] = {};
+//        }
+//    }
+//    //return matrix;
+//}
+
+void requestForParameters(int &IDEntry,int &IDExit, int &diam) {
+    cout << "Enter the CS entry ID: ";
+    cin >> IDEntry;
+    cout << "Enter the CS exit ID: ";
+    cin >> IDExit;
+    cout << "Enter diametr of pipe: ";
+    cin >> diam;
+}
+
 int main()
 {
     redirect_output_wrapper cerr_out(cerr);
@@ -334,6 +362,31 @@ int main()
         case 9:
         {
             deleteCS(groupCS);
+            break;
+        }
+        case 10:
+        {
+            int IDEntry, IDExit, diam;
+            vector <int> usedPipe;
+            requestForParameters(IDEntry, IDExit, diam);
+            vector <vector <vector <int>>> matrix;
+            //выбрать трубу из res или создать новую
+            vector <int> res = findPipeByDiam(groupPipe, diam);
+            if (!res.empty()) {
+                for (auto& p : res) {
+                    if (!(find(res.begin(), res.end(), p) != res.end())) {
+                        //подумать про то, что является нач вершиной, а что кон
+                        matrix[IDEntry][IDExit].push_back(p);
+                        usedPipe.push_back(p);
+                        break;
+                    }
+                }
+                //создаём трубу
+            }
+            else {
+                //создаём трубу
+            }
+
             break;
         }
         case 0:
