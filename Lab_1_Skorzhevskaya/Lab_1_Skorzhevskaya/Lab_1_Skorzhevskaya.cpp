@@ -3,9 +3,9 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <unordered_set>
 #include "comprSt.h"
 #include "pipe.h"
+#include "graph.h"
 #include "utils.h"
 using namespace std;
 
@@ -254,22 +254,24 @@ void editCSByPer(map<int, comprSt>& groupCS) {
     }
 }
 
-//void creatingMatrix(map<int, comprSt>& groupCS, vector <vector <vector<int>> &matrix) {
-//    //vector <vector <int>> matrix;
-//    int lastKey = groupCS.rbegin()->first;
-//    for (int i = 0; i < lastKey; i++) {
-//        for (int j; j < lastKey; j++) {
-//            matrix[i][j] = {};
-//        }
-//    }
-//    //return matrix;
-//}
-
-void requestForParameters(int &IDEntry,int &IDExit, int &diam) {
-    cout << "Enter the CS entry ID: ";
-    cin >> IDEntry;
-    cout << "Enter the CS exit ID: ";
-    cin >> IDExit;
+void requestForParameters(int &IDEntry,int &IDExit, int &diam, map<int, comprSt>& groupCS) {
+    while (1) {
+        cout << "Enter the CS entry ID or enter -1 to create a CS: ";
+        cin >> IDEntry;
+        if (IDEntry == -1)
+        {
+            comprSt newCS;
+            newCS.addCS();
+            pushCS(groupCS, newCS);
+            IDEntry = newCS.getID();
+        }
+        cout << "Enter the CS exit ID: ";
+        cin >> IDExit;
+        if (groupCS.contains(IDEntry) && groupCS.contains(IDExit) && IDEntry != IDExit)
+            break;
+        cout << "TThere are no such IDs. Enter another ID\n";
+    }
+    
     cout << "Enter diametr of pipe: ";
     cin >> diam;
 }
@@ -283,6 +285,7 @@ int main()
 
     map<int, comprSt> groupCS;
     map<int, pipe> groupPipe;
+    map<int, graph> graphG;
 
     while (1)
     {
@@ -368,25 +371,23 @@ int main()
         {
             int IDEntry, IDExit, diam;
             vector <int> usedPipe;
-            requestForParameters(IDEntry, IDExit, diam);
-            vector <vector <vector <int>>> matrix;
-            //выбрать трубу из res или создать новую
-            vector <int> res = findPipeByDiam(groupPipe, diam);
-            if (!res.empty()) {
+            requestForParameters(IDEntry, IDExit, diam, groupCS);
+            while(1)
+            {
+                vector <int> res = findPipeByDiam(groupPipe, diam);
                 for (auto& p : res) {
-                    if (!(find(res.begin(), res.end(), p) != res.end())) {
-                        //подумать про то, что является нач вершиной, а что кон
-                        matrix[IDEntry][IDExit].push_back(p);
+                    if (!(find(usedPipe.begin(), usedPipe.end(), p) != usedPipe.end())) {
+                        graph newEdge;
+                        newEdge.addEdge(IDEntry, IDExit, diam);
+                        graphG.insert(pair<int, graph>(graph::maxIdG, newEdge));
                         usedPipe.push_back(p);
                         break;
                     }
                 }
-                //создаём трубу
+                pipe newPipe;
+                newPipe.addPipe();
+                pushPipe(groupPipe, newPipe);
             }
-            else {
-                //создаём трубу
-            }
-
             break;
         }
         case 0:

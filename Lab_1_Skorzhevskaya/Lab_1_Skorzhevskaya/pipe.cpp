@@ -2,9 +2,30 @@
 #include <iostream>
 #include <fstream>
 #include "utils.h"
+//#include "check.cpp"
 
 using namespace std;
 int pipe::maxPipeID = 1;
+
+bool checkPipeDiam(int diam) {
+    switch (diam) {
+    case 500: {
+        return 1;
+    }
+    case 700: {
+        return 1;
+    }
+    case 1000: {
+        return 1;
+    }
+    case 1400: {
+        return 1;
+    }
+    default:
+        cout << "Invalid diameter\n Try again: ";
+        return 0;
+    }
+}
 
 pipe::pipe() {
     id = 0;
@@ -30,6 +51,12 @@ void pipe::addPipe()
     length = inputT(0.2);
     cout << "Enter the diametr of the pipe:";
     diam = inputT(1);
+    while (1) {
+        if (!checkPipeDiam(diam)) {
+            diam = inputT(1);
+        }
+        else break;
+    }
     cout << "Enter 1 if the pipe is under repair otherwise 0:";
     repair = inputT(true);
 }
