@@ -19,13 +19,14 @@ void printMenu() {
         << "7. Load from file" << endl
         << "8. Delete pipe" << endl
         << "9. Delete CS" << endl
+        << "10. Graph" << endl
         << "0. Exit" << endl
         << "Choose action: ";
 }
 
 //--------------------------ВЫБОР ТРУБЫ/КС--------------------------//
 int SelectPipe(map<int, pipe> groupPipe) {
-    cout << "enter pipe id: ";
+    cout << "Enter pipe id: ";
     while (1) {
         unsigned int index = inputT(1);
         if (index >= 0 && index < groupPipe.size()) {
@@ -36,7 +37,7 @@ int SelectPipe(map<int, pipe> groupPipe) {
 }
 
 int SelectCS(map<int, comprSt> groupCS) {
-    cout << "Select CS id: ";
+    cout << "Enter CS id: ";
     while (1) {
         unsigned int index = inputT(1);
         if (index >= 0 && index < groupCS.size()) {
@@ -94,6 +95,7 @@ vector<int> findCSbyPer(map<int, comprSt>& groupCS, int per) {
     return res;
 }
 
+//------------------ДОБАВЛЕНИЕ ТРУБЫ/КС В ГРУППУ----------------------//
 void pushPipe(map<int, pipe>& groupPipe, pipe& newPipe) {
     groupPipe.insert(pair<int, pipe>(pipe::maxPipeID, newPipe));
     pipe::maxPipeID++;
@@ -104,6 +106,7 @@ void pushCS(map<int, comprSt>& groupCS, comprSt newCS) {
     comprSt::maxCSID++;
 }
 
+//------------------------ЗАГРУЗКА ИЗ ФАЛА---------------------------//
 void loadFromFile(map<int, pipe>& groupPipe, map<int, comprSt>& groupCS) {
     string FILENAME, marker;
     cout << "Enter name of file to load:";
@@ -171,7 +174,7 @@ void printAllObj(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
 
     if (groupPipe.size() == 0) cout << "Input or load pipe to print" << endl;
     for (auto& [key, p]: groupPipe) {
-        cout << "PIPE information" << endl;
+        cout << "\nPIPE information" << endl;
         p.printPipe();
     }
     if (groupCS.size() == 0) cout << "Input or load CS to print" << endl;
@@ -181,7 +184,7 @@ void printAllObj(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
     }
 }
 
-//---------------------УДАЛЕНИЕ ТРУБЫ/КС-----------------------//
+//-----------------------------УДАЛЕНИЕ ТРУБЫ/КС---------------------------//
 void deletePipe(map<int, pipe> &groupPipe) {
     int index = SelectPipe(groupPipe);
     groupPipe.erase(index);
@@ -192,7 +195,7 @@ void deleteCS(map<int, comprSt> &groupCS) {
     groupCS.erase(index);
 }
 
-//-----------------ПАКЕТНОЕ РЕДАКТИРОВАНИЕ ТРУБ/КС
+//-----------------ПАКЕТНОЕ РЕДАКТИРОВАНИЕ ТРУБ/КС-------------------------//
 void editPipeByName(map<int, pipe>& groupPipe) {
 
     string nameToSearch;
@@ -254,6 +257,49 @@ void editCSByPer(map<int, comprSt>& groupCS) {
     }
 }
 
+//void checkNumPipe(map<int, comprSt>& groupCS, int& IDEntry, int& IDExit) {
+//    if (groupCS[IDEntry])
+//}
+
+bool hasCycleDFS(vector<vector<int>>& graph, int node, vector<bool>& visited, vector<bool>& recursionStack) {
+    visited[node] = true;
+    recursionStack[node] = true;
+
+    for (int neighbor : graph[node]) {
+        if (!visited[neighbor] && hasCycleDFS(graph, neighbor, visited, recursionStack)) {
+            return true;
+        }
+        else if (recursionStack[neighbor]) {
+            return true;
+        }
+    }
+
+    recursionStack[node] = false;
+    return false;
+}
+
+// Функция для инициализации и вызова функции проверки наличия цикла
+bool hasCycle(vector<vector<int>>& graph, int numNodes) {
+    vector<bool> visited(numNodes, false);
+    vector<bool> recursionStack(numNodes, false);
+
+    for (int i = 0; i < numNodes; i++) {
+        if (!visited[i] && hasCycleDFS(graph, i, visited, recursionStack)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+vector<vector<int>> createMatrix(map<int, graph> graphG, int numNodes) {
+    vector<vector<int>> matrix(numNodes);
+    for (auto& [key, p] : graphG) {
+        matrix[p.IDExit].push_back(p.IDEntry);
+    }
+    return matrix;
+}
+
+//---------------------------ЗАПРОС ВВОДА ПАРАМЕТРОВ ДЛЯ ГРАФА------------------------------//
 void requestForParameters(int &IDEntry,int &IDExit, int &diam, map<int, comprSt>& groupCS) {
     while (1) {
         cout << "Enter the CS entry ID or enter -1 to create a CS: ";
@@ -269,13 +315,14 @@ void requestForParameters(int &IDEntry,int &IDExit, int &diam, map<int, comprSt>
         cin >> IDExit;
         if (groupCS.contains(IDEntry) && groupCS.contains(IDExit) && IDEntry != IDExit)
             break;
-        cout << "TThere are no such IDs. Enter another ID\n";
+        cout << "There are no such IDs. Enter another ID\n";
     }
     
     cout << "Enter diametr of pipe: ";
     cin >> diam;
 }
 
+//-----------------------------MAIN---------------------------//
 int main()
 {
     redirect_output_wrapper cerr_out(cerr);
@@ -286,6 +333,9 @@ int main()
     map<int, comprSt> groupCS;
     map<int, pipe> groupPipe;
     map<int, graph> graphG;
+    map<int, bool> nodes;
+
+    vector <int> usedPipe;
 
     while (1)
     {
@@ -370,23 +420,35 @@ int main()
         case 10:
         {
             int IDEntry, IDExit, diam;
-            vector <int> usedPipe;
+            bool flag = 0;
             requestForParameters(IDEntry, IDExit, diam, groupCS);
             while(1)
             {
                 vector <int> res = findPipeByDiam(groupPipe, diam);
                 for (auto& p : res) {
+                    bool findEdge = (find(usedPipe.begin(), usedPipe.end(), p) != usedPipe.end());
                     if (!(find(usedPipe.begin(), usedPipe.end(), p) != usedPipe.end())) {
                         graph newEdge;
                         newEdge.addEdge(IDEntry, IDExit, diam);
                         graphG.insert(pair<int, graph>(graph::maxIdG, newEdge));
                         usedPipe.push_back(p);
+                        //nodes.insert(pair<int, bool>(IDEntry, 1));
+                        //nodes.insert(pair<int, bool>(IDExit, 1));
+                        nodes[IDEntry] = 1;
+                        nodes[IDExit] = 1;
+                        flag = 1;
                         break;
                     }
+                }
+                if (flag) {
+                    break;
                 }
                 pipe newPipe;
                 newPipe.addPipe();
                 pushPipe(groupPipe, newPipe);
+            }
+            for (auto& [key, p] : graphG) {
+                p.printG();
             }
             break;
         }
