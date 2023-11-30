@@ -24,6 +24,26 @@ void printMenu() {
         << "Choose action: ";
 }
 
+bool checkPipeD(int diam) {
+    switch (diam) {
+    case 500: {
+        return 1;
+    }
+    case 700: {
+        return 1;
+    }
+    case 1000: {
+        return 1;
+    }
+    case 1400: {
+        return 1;
+    }
+    default:
+        cout << "Invalid diameter\n Try again: ";
+        return 0;
+    }
+}
+
 //--------------------------ВЫБОР ТРУБЫ/КС--------------------------//
 int SelectPipe(map<int, pipe> groupPipe) {
     cout << "Enter pipe id: ";
@@ -50,7 +70,6 @@ int SelectCS(map<int, comprSt> groupCS) {
 //--------------ПОИСК ТРУБ/КС ПО ЗАДАННОМУ ФИЛЬТРУ-------------------//
 vector<int> findPipebyName(map<int, pipe>& groupPipe, string name) {
     vector <int> res;
-
     for (int i = 0; i < groupPipe.size(); i++) {
         if (groupPipe[i].km_mark == name)
             res.push_back(i);
@@ -59,7 +78,6 @@ vector<int> findPipebyName(map<int, pipe>& groupPipe, string name) {
 }
 vector<int> findPipeByDiam(map<int, pipe>& groupPipe, int diam) {
     vector <int> res;
-
     for (int i = 0; i < groupPipe.size(); i++) {
         if (groupPipe[i].diam == diam)
             res.push_back(i);
@@ -68,7 +86,6 @@ vector<int> findPipeByDiam(map<int, pipe>& groupPipe, int diam) {
 }
 vector<int> findPipebyRepair(map<int, pipe>& groupPipe, bool repair) {
     vector <int> res;
-
     for (int i = 0; i < groupPipe.size(); i++) {
         if (groupPipe[i].repair == repair)
             res.push_back(i);
@@ -77,7 +94,6 @@ vector<int> findPipebyRepair(map<int, pipe>& groupPipe, bool repair) {
 }
 vector<int> findCSbyName(map<int, comprSt>& groupCS, string name) {
     vector <int> res;
-
     for (int i = 0; i < groupCS.size(); i++) {
         if (groupCS[i].name == name)
             res.push_back(i);
@@ -86,7 +102,6 @@ vector<int> findCSbyName(map<int, comprSt>& groupCS, string name) {
 }
 vector<int> findCSbyPer(map<int, comprSt>& groupCS, int per) {
     vector <int> res;
-
     for (int i = 0; i < groupCS.size(); i++) {
         int k = round((100.0 * (groupCS[i].numOfWS - groupCS[i].WSinOperation)) / groupCS[i].numOfWS);
         if (k == per)
@@ -294,7 +309,7 @@ bool hasCycle(vector<vector<int>>& graph, int numNodes) {
 vector<vector<int>> createMatrix(map<int, graph> graphG, int numNodes) {
     vector<vector<int>> matrix(numNodes);
     for (auto& [key, p] : graphG) {
-        matrix[p.IDExit].push_back(p.IDEntry);
+        matrix[p.IDExit-1].push_back(p.IDEntry-1);
     }
     return matrix;
 }
@@ -303,7 +318,7 @@ vector<vector<int>> createMatrix(map<int, graph> graphG, int numNodes) {
 void requestForParameters(int &IDEntry,int &IDExit, int &diam, map<int, comprSt>& groupCS) {
     while (1) {
         cout << "Enter the CS entry ID or enter -1 to create a CS: ";
-        cin >> IDEntry;
+        IDEntry = inputT(1);
         if (IDEntry == -1)
         {
             comprSt newCS;
@@ -312,14 +327,77 @@ void requestForParameters(int &IDEntry,int &IDExit, int &diam, map<int, comprSt>
             IDEntry = newCS.getID();
         }
         cout << "Enter the CS exit ID: ";
-        cin >> IDExit;
+        IDExit = inputT(1);
         if (groupCS.contains(IDEntry) && groupCS.contains(IDExit) && IDEntry != IDExit)
             break;
         cout << "There are no such IDs. Enter another ID\n";
     }
     
     cout << "Enter diametr of pipe: ";
-    cin >> diam;
+    diam = inputT(1);
+    while (1) {
+        if (!checkPipeD(diam)) {
+            diam = inputT(1);
+        }
+        else break;
+    }
+}
+
+map<int, int> degeeOfEntry(vector<vector<int>> matrix, int numNodes) {
+    map<int, int> degreesOfNodes;
+    for (int node = 0; node < numNodes; node++)
+    {
+        //if (degreesOfNodes[node]) {
+        degreesOfNodes[node] = 0;
+    }
+    for (int node = 0; node < numNodes; node++)
+    {
+        for (int neighbor : matrix[node]) {
+            bool f = !degreesOfNodes[neighbor];
+            //if (f) {
+            degreesOfNodes[neighbor]++;
+            //}
+        }
+    }
+    return degreesOfNodes;
+}
+map<int, int> degeeOfOutcome(vector<vector<int>> matrix, int numNodes) {
+    map<int, int> degreesOfNodes;
+    for (int node = 0; node < numNodes; node++)
+    {
+        degreesOfNodes[node] = matrix[node].size();
+    }
+    return degreesOfNodes;
+}
+
+vector<int> topologicalSorting(map<int, int> entryDegeeOfNodes, map<int, int> outDegeeOfNodes, vector<vector<int>> matrix, int numNodes) {
+    vector <int> res;
+    //vector <int> zeroDegree;
+    vector <int> currentNodes;
+    while (res.size() != numNodes)
+    {
+        for (int i = 0; i < entryDegeeOfNodes.size(); i++) {
+            if (entryDegeeOfNodes[i] == 0 && outDegeeOfNodes[i] == 0) {
+                //zeroDegree.push_back(i);
+                continue;
+            }
+            if (entryDegeeOfNodes[i] == 0) {
+                currentNodes.push_back(i);
+            }
+        }
+        for (int i = 0; i < currentNodes.size(); i++) {
+            for (int neighbor : matrix[i]) {
+                entryDegeeOfNodes[neighbor]--;
+            }
+            //entryDegeeOfNodes[currentNodes[i]]--;
+            res.push_back(currentNodes[i]);
+        }
+        /*for (int i = 0; i < zeroDegree.size(); i++) {
+            res.push_back(zeroDegree[i]);
+        }*/
+
+    }
+    return res;
 }
 
 //-----------------------------MAIN---------------------------//
@@ -449,6 +527,59 @@ int main()
             }
             for (auto& [key, p] : graphG) {
                 p.printG();
+            }
+            break;
+        }
+        case 11:
+        {
+            vector<vector<int>>matrix = createMatrix(graphG, groupCS.size());
+            vector<int> resOfTop;
+            if (hasCycle(matrix, groupCS.size())) {
+                cout << "Graph has a cicle" << endl;
+            }
+            else {
+                cout << "Graph does not have a cicle" << endl;
+                int flagE = 0, flagO = 0;
+                map<int, int> entryDegreesOfNodes = degeeOfEntry(matrix, groupCS.size());
+                map<int, int> outDegreesOfNodes = degeeOfOutcome(matrix, groupCS.size());
+                for (int i = 0; i < groupCS.size(); i++) {
+                    if (entryDegreesOfNodes[i] == 0)
+                        flagE = 1;
+                    if (outDegreesOfNodes[i] == 0)
+                        flagO = 1;
+                }
+                if (flagE && flagO) {
+                    //топологическая сортировка
+                    resOfTop = topologicalSorting(entryDegreesOfNodes, outDegreesOfNodes, matrix, nodes.size());
+                }
+            }
+            for (int node : resOfTop) {
+                cout << node << " ";
+            }
+            cout << endl;
+            break;
+        }
+        case 12:
+        {
+            ofstream fout("GRAPH.TXT");
+            for (auto const& edge : graphG) {
+                graphG[edge.first].saveGraph(fout);
+            }
+            break;
+        }
+        case 13:
+        {
+            ifstream fin("GRAPH.TXT");
+            if(fin.is_open()) {
+                while (!fin.eof()) {
+                    graph newEdge;
+                    newEdge.loadGraph(fin);
+                    graphG.insert(pair<int, graph>(graph::maxIdG, newEdge));
+                    //usedPipe.push_back(p);
+                    nodes[newEdge.IDEntry] = 1;
+                    nodes[newEdge.IDExit] = 1;
+                    graph::maxIdG++;
+                }
             }
             break;
         }
