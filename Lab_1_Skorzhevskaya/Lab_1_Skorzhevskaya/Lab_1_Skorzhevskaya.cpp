@@ -20,6 +20,9 @@ void printMenu() {
         << "8. Delete pipe" << endl
         << "9. Delete CS" << endl
         << "10. Graph" << endl
+        << "11. Sort" << endl
+        << "12. Save graph" << endl
+        << "13. Load graph" << endl
         << "0. Exit" << endl
         << "Choose action: ";
 }
@@ -45,11 +48,22 @@ bool checkPipeD(int diam) {
 }
 
 //--------------------------ВЫБОР ТРУБЫ/КС--------------------------//
+int SelectG(map<int, graph> graphG) {
+    cout << "Enter pipe id: ";
+    while (1) {
+        unsigned int index = inputT(1);
+        if (index >= 1 && index < graphG.size()) {
+            return index;
+        }
+        cout << "enter correct number: ";
+    }
+}
+
 int SelectPipe(map<int, pipe> groupPipe) {
     cout << "Enter pipe id: ";
     while (1) {
         unsigned int index = inputT(1);
-        if (index >= 0 && index < groupPipe.size()) {
+        if (index >= 1 && index < groupPipe.size()) {
             return index;
         }
         cout << "enter correct number: ";
@@ -60,7 +74,7 @@ int SelectCS(map<int, comprSt> groupCS) {
     cout << "Enter CS id: ";
     while (1) {
         unsigned int index = inputT(1);
-        if (index >= 0 && index < groupCS.size()) {
+        if (index >= 1 && index < groupCS.size()) {
             return index;
         }
         cout << "enter correct number: ";
@@ -354,9 +368,8 @@ map<int, int> degeeOfEntry(vector<vector<int>> matrix, int numNodes) {
     {
         for (int neighbor : matrix[node]) {
             bool f = !degreesOfNodes[neighbor];
-            //if (f) {
             degreesOfNodes[neighbor]++;
-            //}
+            
         }
     }
     return degreesOfNodes;
@@ -370,34 +383,42 @@ map<int, int> degeeOfOutcome(vector<vector<int>> matrix, int numNodes) {
     return degreesOfNodes;
 }
 
-vector<int> topologicalSorting(map<int, int> entryDegeeOfNodes, map<int, int> outDegeeOfNodes, vector<vector<int>> matrix, int numNodes) {
-    vector <int> res;
-    //vector <int> zeroDegree;
-    vector <int> currentNodes;
-    while (res.size() != numNodes)
-    {
-        for (int i = 0; i < entryDegeeOfNodes.size(); i++) {
-            if (entryDegeeOfNodes[i] == 0 && outDegeeOfNodes[i] == 0) {
-                //zeroDegree.push_back(i);
-                continue;
-            }
-            if (entryDegeeOfNodes[i] == 0) {
-                currentNodes.push_back(i);
-            }
-        }
-        for (int i = 0; i < currentNodes.size(); i++) {
-            for (int neighbor : matrix[i]) {
-                entryDegeeOfNodes[neighbor]--;
-            }
-            //entryDegeeOfNodes[currentNodes[i]]--;
-            res.push_back(currentNodes[i]);
-        }
-        /*for (int i = 0; i < zeroDegree.size(); i++) {
-            res.push_back(zeroDegree[i]);
-        }*/
+//vector<int> topologicalSorting(map<int, int> entryDegeeOfNodes, map<int, int> outDegeeOfNodes, vector<vector<int>> matrix, int numNodes) {
+//    vector <int> res;
+//    //vector <int> zeroDegree;
+//    vector <int> currentNodes;
+//    while (res.size() != numNodes)
+//    {
+//        for (int i = 0; i < entryDegeeOfNodes.size(); i++) {
+//            if (entryDegeeOfNodes[i] == 0 && outDegeeOfNodes[i] == 0) {
+//                //zeroDegree.push_back(i);
+//                continue;
+//            }
+//            if (entryDegeeOfNodes[i] == 0) {
+//                currentNodes.push_back(i);
+//            }
+//        }
+//        for (int i = 0; i < currentNodes.size(); i++) {
+//            for (int neighbor : matrix[i]) {
+//                entryDegeeOfNodes[neighbor]--;
+//            }
+//            //entryDegeeOfNodes[currentNodes[i]]--;
+//            res.push_back(currentNodes[i]);
+//        }
+//        /*for (int i = 0; i < zeroDegree.size(); i++) {
+//            res.push_back(zeroDegree[i]);
+//        }*/
+//
+//    }
+//    return res;
+//}
 
-    }
-    return res;
+void dfs(vector<vector<int>>& graph, int node, vector<bool>& visited, vector<int>& recursionStack) {
+    visited[node] = true;
+    for (int neighbor : graph[node])
+        if (!visited[neighbor])
+            dfs(graph, neighbor, visited, recursionStack);
+    recursionStack.push_back(node);
 }
 
 //-----------------------------MAIN---------------------------//
@@ -539,24 +560,30 @@ int main()
             }
             else {
                 cout << "Graph does not have a cicle" << endl;
-                int flagE = 0, flagO = 0;
-                map<int, int> entryDegreesOfNodes = degeeOfEntry(matrix, groupCS.size());
-                map<int, int> outDegreesOfNodes = degeeOfOutcome(matrix, groupCS.size());
-                for (int i = 0; i < groupCS.size(); i++) {
-                    if (entryDegreesOfNodes[i] == 0)
-                        flagE = 1;
-                    if (outDegreesOfNodes[i] == 0)
-                        flagO = 1;
+                vector<bool>visited(groupCS.size());
+                for (int node = 0; node < groupCS.size(); node++)
+                    if (!visited[node])
+                        dfs(matrix, node, visited, resOfTop);
+                reverse(resOfTop.begin(), resOfTop.end());
+                for (int node : resOfTop) {
+                    cout << node + 1 << " ";
                 }
-                if (flagE && flagO) {
-                    //топологическая сортировка
-                    resOfTop = topologicalSorting(entryDegreesOfNodes, outDegreesOfNodes, matrix, nodes.size());
-                }
+                cout << endl;
+                //int flagE = 0, flagO = 0;
+                //map<int, int> entryDegreesOfNodes = degeeOfEntry(matrix, groupCS.size());
+                //map<int, int> outDegreesOfNodes = degeeOfOutcome(matrix, groupCS.size());
+                //for (int i = 0; i < groupCS.size(); i++) {
+                //    if (entryDegreesOfNodes[i] == 0)
+                //        flagE = 1;
+                //    if (outDegreesOfNodes[i] == 0)
+                //        flagO = 1;
+                //}
+                //if (flagE && flagO) {
+                //    //топологическая сортировка
+                //    resOfTop = topologicalSorting(entryDegreesOfNodes, outDegreesOfNodes, matrix, nodes.size());
+                //}
             }
-            for (int node : resOfTop) {
-                cout << node << " ";
-            }
-            cout << endl;
+            
             break;
         }
         case 12:
@@ -569,6 +596,7 @@ int main()
         }
         case 13:
         {
+            graph::maxIdG = 1;
             ifstream fin("GRAPH.TXT");
             if(fin.is_open()) {
                 while (!fin.eof()) {
@@ -581,6 +609,12 @@ int main()
                     graph::maxIdG++;
                 }
             }
+            break;
+        }
+        case 14:
+        {
+            int index = SelectG(graphG);
+            graphG.erase(index);
             break;
         }
         case 0:
