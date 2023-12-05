@@ -131,12 +131,14 @@
     <ClCompile Include="comprSt.cpp" />
     <ClCompile Include="graph.cpp" />
     <ClCompile Include="Lab_1_Skorzhevskaya.cpp" />
+    <ClCompile Include="netWork.cpp" />
     <ClCompile Include="pipe.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="comprSt.h" />
     <ClInclude Include="graph.h" />
+    <ClInclude Include="netWork.h" />
     <ClInclude Include="pipe.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

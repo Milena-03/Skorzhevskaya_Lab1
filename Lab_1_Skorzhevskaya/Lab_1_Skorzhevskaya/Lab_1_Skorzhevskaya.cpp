@@ -6,7 +6,11 @@
 #include "comprSt.h"
 #include "pipe.h"
 #include "graph.h"
+#include "netWork.h"
 #include "utils.h"
+
+//#include "pushElements.cpp"
+//#include "pushPipeE.cpp"
 using namespace std;
 
 void printMenu() {
@@ -136,39 +140,39 @@ void pushCS(map<int, comprSt>& groupCS, comprSt newCS) {
 }
 
 //------------------------ЗАГРУЗКА ИЗ ФАЛА---------------------------//
-void loadFromFile(map<int, pipe>& groupPipe, map<int, comprSt>& groupCS) {
-    string FILENAME, marker;
-    cout << "Enter name of file to load:";
-    cin >> FILENAME;
-    cerr << FILENAME << endl;
-    ifstream fin(FILENAME);
-    bool flagP = 0, flagCS = 0;
-    groupPipe.erase(groupPipe.begin(), groupPipe.end());
-    groupCS.erase(groupCS.begin(), groupCS.end());
-    pipe::maxPipeID = 1;
-    comprSt::maxCSID = 1;
-    if(fin.is_open()){
-        while (!fin.eof()) {
-            fin >> marker;
-            if (marker == "PIPE") {
-                pipe newPipe;
-                newPipe.loadPipe(fin);
-                pushPipe(groupPipe, newPipe);
-                flagP = 1;
-            }
-            if (marker == "CS") {
-                comprSt newCS;
-                newCS.loadCS(fin);
-                pushCS(groupCS, newCS);
-                flagCS = 1;
-            }
-        }
-        if (!flagP) cout << "save the pipe data to a file" << endl;
-        if (!flagCS) cout << "save the CS data to a file" << endl;
-    }else {
-        cout << "Error! The file " << FILENAME <<" does not exist" << endl;
-    }
-}
+//void loadFromFile(map<int, pipe>& groupPipe, map<int, comprSt>& groupCS) {
+//    string FILENAME, marker;
+//    cout << "Enter name of file to load:";
+//    cin >> FILENAME;
+//    cerr << FILENAME << endl;
+//    ifstream fin(FILENAME);
+//    bool flagP = 0, flagCS = 0;
+//    groupPipe.erase(groupPipe.begin(), groupPipe.end());
+//    groupCS.erase(groupCS.begin(), groupCS.end());
+//    pipe::maxPipeID = 1;
+//    comprSt::maxCSID = 1;
+//    if(fin.is_open()){
+//        while (!fin.eof()) {
+//            fin >> marker;
+//            if (marker == "PIPE") {
+//                pipe newPipe;
+//                newPipe.loadPipe(fin);
+//                pushPipe(groupPipe, newPipe);
+//                flagP = 1;
+//            }
+//            if (marker == "CS") {
+//                comprSt newCS;
+//                newCS.loadCS(fin);
+//                pushCS(groupCS, newCS);
+//                flagCS = 1;
+//            }
+//        }
+//        if (!flagP) cout << "save the pipe data to a file" << endl;
+//        if (!flagCS) cout << "save the CS data to a file" << endl;
+//    }else {
+//        cout << "Error! The file " << FILENAME <<" does not exist" << endl;
+//    }
+//}
 
 //------------------------СОХРАНЕНИЕ В ФАЙЛ-----------------------------//
 void SaveToFile(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
@@ -435,6 +439,7 @@ int main()
     map<int, bool> nodes;
 
     vector <int> usedPipe;
+    netWork newNetWork;
 
     while (1)
     {
@@ -503,7 +508,37 @@ int main()
         }
         case 7:
         {
-            loadFromFile(groupPipe, groupCS);
+            string FILENAME, marker;
+            cout << "Enter name of file to load:";
+            cin >> FILENAME;
+            cerr << FILENAME << endl;
+            ifstream fin(FILENAME);
+            graph::maxIdG = 1;
+            if (fin.is_open()) {
+                newNetWork.loadFromFile(fin);
+                graph newEdge;
+                while (!fin.eof()) {
+                    newEdge.loadGraph(fin);
+                    graphG.insert(pair<int, graph>(graph::maxIdG, newEdge));
+                    graph::maxIdG++;
+                }
+                
+                //usedPipe.push_back(p);
+                /*nodes[newEdge.IDEntry] = 1;
+                nodes[newEdge.IDExit] = 1;*/
+                
+                //netWork::loadFromFile(fin);
+                //while (!fin.eof()) {
+                //    graph newEdge;
+                //    newEdge.loadGraph(fin);
+                //    graphG.insert(pair<int, graph>(graph::maxIdG, newEdge));
+                //    //usedPipe.push_back(p);
+                //    nodes[newEdge.IDEntry] = 1;
+                //    nodes[newEdge.IDExit] = 1;
+                //    graph::maxIdG++;
+                //}
+            }
+            //loadFromFile(groupPipe, groupCS);
             break;
         }
         case 8:
