@@ -63,22 +63,22 @@ int SelectG(map<int, graph> graphG) {
     }
 }
 
-int SelectPipe(map<int, pipe> groupPipe) {
+int SelectPipe(netWork& newNetWork) {
     cout << "Enter pipe id: ";
     while (1) {
         unsigned int index = inputT(1);
-        if (index >= 1 && index < groupPipe.size()) {
+        if (index >= 1 && index < newNetWork.getPipe().size()) {
             return index;
         }
         cout << "enter correct number: ";
     }
 }
 
-int SelectCS(map<int, comprSt> groupCS) {
+int SelectCS(netWork& newNetWork) {
     cout << "Enter CS id: ";
     while (1) {
         unsigned int index = inputT(1);
-        if (index >= 1 && index < groupCS.size()) {
+        if (index >= 1 && index < newNetWork.getCS().size()) {
             return index;
         }
         cout << "enter correct number: ";
@@ -86,22 +86,48 @@ int SelectCS(map<int, comprSt> groupCS) {
 }
 
 //--------------ПОИСК ТРУБ/КС ПО ЗАДАННОМУ ФИЛЬТРУ-------------------//
-vector<int> findPipebyName(map<int, pipe>& groupPipe, string name) {
+
+vector<int> findPipebyName(netWork& newNetWork, string name) {
+    vector <int> res;
+    for (int i = 0; i < newNetWork.getPipe().size(); i++) {
+        if (newNetWork.getPipe()[i].km_mark == name)
+            res.push_back(i+1);
+    }
+    return res;
+}
+/*vector<int> findPipebyName(map<int, pipe>& groupPipe, string name) {
     vector <int> res;
     for (int i = 0; i < groupPipe.size(); i++) {
         if (groupPipe[i].km_mark == name)
             res.push_back(i);
     }
     return res;
-}
-vector<int> findPipeByDiam(map<int, pipe>& groupPipe, int diam) {
+}*/
+vector<int> findPipeByDiam(netWork& newNetWork, int diam) {
     vector <int> res;
-    for (int i = 0; i < groupPipe.size(); i++) {
-        if (groupPipe[i].diam == diam)
-            res.push_back(i);
+    for (int i = 0; i < newNetWork.getPipe().size(); i++) {
+        if (newNetWork.getPipe()[i].diam == diam)
+            res.push_back(i+1);
     }
     return res;
 }
+//vector<int> findPipeByDiam(map<int, pipe>& groupPipe, int diam) {
+//    vector <int> res;
+//    for (int i = 0; i < groupPipe.size(); i++) {
+//        if (groupPipe[i].diam == diam)
+//            res.push_back(i);
+//    }
+//    return res;
+//}
+vector<int> findPipebyRepair(netWork& newNetWork, bool repair) {
+    vector <int> res;
+    for (int i = 0; i < newNetWork.getPipe().size(); i++) {
+        if (newNetWork.getPipe()[i].repair == repair)
+            res.push_back(i+1);
+    }
+    return res;
+}
+/*
 vector<int> findPipebyRepair(map<int, pipe>& groupPipe, bool repair) {
     vector <int> res;
     for (int i = 0; i < groupPipe.size(); i++) {
@@ -109,37 +135,39 @@ vector<int> findPipebyRepair(map<int, pipe>& groupPipe, bool repair) {
             res.push_back(i);
     }
     return res;
-}
-vector<int> findCSbyName(map<int, comprSt>& groupCS, string name) {
+}*/
+vector<int> findCSbyName(netWork& newNetWork, string name) {
     vector <int> res;
-    for (int i = 0; i < groupCS.size(); i++) {
-        if (groupCS[i].name == name)
-            res.push_back(i);
+    for (int i = 0; i < newNetWork.getCS().size(); i++) {
+        if (newNetWork.getCS()[i].name == name)
+            res.push_back(i+1);//i или i+1
     }
     return res;
 }
-vector<int> findCSbyPer(map<int, comprSt>& groupCS, int per) {
+vector<int> findCSbyPer(netWork& newNetWork, int per) {
     vector <int> res;
-    for (int i = 0; i < groupCS.size(); i++) {
-        int k = round((100.0 * (groupCS[i].numOfWS - groupCS[i].WSinOperation)) / groupCS[i].numOfWS);
+    for (int i = 0; i < newNetWork.getCS().size(); i++) {
+        int k = round((100.0 * (newNetWork.getCS()[i].numOfWS - newNetWork.getCS()[i].WSinOperation)) / newNetWork.getCS()[i].numOfWS);
         if (k == per)
-            res.push_back(i);
+            res.push_back(i+1);
     }
     return res;
 }
 
 //------------------ДОБАВЛЕНИЕ ТРУБЫ/КС В ГРУППУ----------------------//
-void pushPipe(map<int, pipe>& groupPipe, pipe& newPipe) {
-    groupPipe.insert(pair<int, pipe>(pipe::maxPipeID, newPipe));
-    pipe::maxPipeID++;
-}
 
-void pushCS(map<int, comprSt>& groupCS, comprSt newCS) {
-    groupCS.insert(pair<int, comprSt>(comprSt::maxCSID, newCS));
-    comprSt::maxCSID++;
-}
+//void pushPipe(map<int, pipe>& groupPipe, pipe& newPipe) {
+//    groupPipe.insert(pair<int, pipe>(pipe::maxPipeID, newPipe));
+//    pipe::maxPipeID++;
+//}
+//
+//void pushCS(map<int, comprSt>& groupCS, comprSt newCS) {
+//    groupCS.insert(pair<int, comprSt>(comprSt::maxCSID, newCS));
+//    comprSt::maxCSID++;
+//}
 
 //------------------------ЗАГРУЗКА ИЗ ФАЛА---------------------------//
+
 //void loadFromFile(map<int, pipe>& groupPipe, map<int, comprSt>& groupCS) {
 //    string FILENAME, marker;
 //    cout << "Enter name of file to load:";
@@ -175,119 +203,127 @@ void pushCS(map<int, comprSt>& groupCS, comprSt newCS) {
 //}
 
 //------------------------СОХРАНЕНИЕ В ФАЙЛ-----------------------------//
-void SaveToFile(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
 
-    if (groupPipe.size() == 0 && groupCS.size()==0) cout << "Input or load data to save" << endl;
-    else {
-        string FILENAME;
-        cout << "Enter name of file to save:";
-        cin >> FILENAME;
-        cerr << FILENAME << endl;
-        ofstream fout(FILENAME);
-        if (groupPipe.size() != 0) {
-            for (auto const& pipe : groupPipe) {
-                if (groupPipe[pipe.first].km_mark != "") {
-                    groupPipe[pipe.first].savePipe(fout);
-                } 
-            }           
-        }
-        if (groupCS.size() != 0) {
-            for (auto const& CS : groupCS) {
-                if (groupCS[CS.first].name != "") {
-                    groupCS[CS.first].saveCS(fout);
-                }           
-            }
-        }
-        fout.close();
-    }
-}
+//void SaveToFile(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
+//
+//    if (groupPipe.size() == 0 && groupCS.size()==0) cout << "Input or load data to save" << endl;
+//    else {
+//        string FILENAME;
+//        cout << "Enter name of file to save:";
+//        cin >> FILENAME;
+//        cerr << FILENAME << endl;
+//        ofstream fout(FILENAME);
+//        if (groupPipe.size() != 0) {
+//            for (auto const& pipe : groupPipe) {
+//                if (groupPipe[pipe.first].km_mark != "") {
+//                    groupPipe[pipe.first].savePipe(fout);
+//                } 
+//            }           
+//        }
+//        if (groupCS.size() != 0) {
+//            for (auto const& CS : groupCS) {
+//                if (groupCS[CS.first].name != "") {
+//                    groupCS[CS.first].saveCS(fout);
+//                }           
+//            }
+//        }
+//        fout.close();
+//    }
+//}
 
 //----------------------ВЫВОД ТРУЬЫ/КС НА КОНСОЛЬ---------------------------//
-void printAllObj(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
 
-    if (groupPipe.size() == 0) cout << "Input or load pipe to print" << endl;
-    for (auto& [key, p]: groupPipe) {
-        cout << "\nPIPE information" << endl;
-        p.printPipe();
-    }
-    if (groupCS.size() == 0) cout << "Input or load CS to print" << endl;
-    for (auto& [key, cs]: groupCS) {
-        cout << "\nCS information" << endl;
-        cs.printCS();
-    }
-}
+//void printAllObj(map<int, pipe> groupPipe, map<int, comprSt> groupCS) {
+//
+//    if (groupPipe.size() == 0) cout << "Input or load pipe to print" << endl;
+//    for (auto& [key, p]: groupPipe) {
+//        cout << "\nPIPE information" << endl;
+//        p.printPipe();
+//    }
+//    if (groupCS.size() == 0) cout << "Input or load CS to print" << endl;
+//    for (auto& [key, cs]: groupCS) {
+//        cout << "\nCS information" << endl;
+//        cs.printCS();
+//    }
+//}
 
 //-----------------------------УДАЛЕНИЕ ТРУБЫ/КС---------------------------//
-void deletePipe(map<int, pipe> &groupPipe) {
-    int index = SelectPipe(groupPipe);
-    groupPipe.erase(index);
-}
 
-void deleteCS(map<int, comprSt> &groupCS) {
-    int index = SelectCS(groupCS);
-    groupCS.erase(index);
-}
+//void deletePipe(map<int, pipe> &groupPipe) {
+//    int index = SelectPipe(groupPipe);
+//    groupPipe.erase(index);
+//}
+//
+//void deleteCS(map<int, comprSt> &groupCS) {
+//    int index = SelectCS(groupCS);
+//    groupCS.erase(index);
+//}
 
 //-----------------ПАКЕТНОЕ РЕДАКТИРОВАНИЕ ТРУБ/КС-------------------------//
-void editPipeByName(map<int, pipe>& groupPipe) {
+void editPipeByName(netWork& newNetWork) {
 
     string nameToSearch;
     cout << "Enter name to search for pipes: ";
     cin >> ws;
     getline(cin, nameToSearch);
     cerr << nameToSearch << endl;
-    vector<int> res = findPipebyName(groupPipe, nameToSearch);
+    //map<int, pipe> groupPipe = newNetWork.getPipe();
+    vector<int> res = findPipebyName(newNetWork, nameToSearch);
     if (res.size() == 0) {
         cout << "There are no pipes with this name.\n";
         return;
     }
-    for (int i = 0; i < res.size(); i++) {
-        groupPipe[res[i]].editPipe();
-    }
+    /*for (int i = 0; i < res.size(); i++) {
+        newNetWork.getPipe()[res[i]].editPipe();
+    }*/
+    newNetWork.editPipe(res);
 }
 
-void editPipeByRepair(map<int, pipe>& groupPipe) {
+void editPipeByRepair(netWork& newNetWork) {
     bool state;
     cout << "Enter repair state to search for pipes: ";
     state = inputT(true);
-    vector<int> res = findPipebyRepair(groupPipe, state);
+    vector<int> res = findPipebyRepair(newNetWork, state);
     if (res.size() == 0) {
         cout << "There are no pipes with this repair state.\n";
         return;
-    }
+    }/*
     for (int i = 0; i < res.size(); i++) {
         groupPipe[res[i]].editPipe();
-    }
+    }*/
+    newNetWork.editPipe(res);
 }
 
-void editCSByName(map<int, comprSt>& groupCS) {
+void editCSByName(netWork& newNetWork) {
     cout << "Enter name to search for CS: ";
     string nameToSearch;
     cin >> ws;
     getline(cin, nameToSearch);
     cerr << nameToSearch << endl;
-    vector<int> res = findCSbyName(groupCS, nameToSearch);
+    vector<int> res = findCSbyName(newNetWork, nameToSearch);
     if (res.size() == 0) {
         cout << "There are no CS with this name.\n";
         return;
     }
-    for (int i = 0; i < res.size(); i++) {
-        groupCS[res[i]].editCS();
-    }
+    newNetWork.editCS(res);
+    /*for (int i = 0; i < res.size(); i++) {
+        newNetWork.getCS()[res[i]].editCS();
+    }*/
 }
 
-void editCSByPer(map<int, comprSt>& groupCS) {
+void editCSByPer(netWork& newNetWork) {
     cout << "Enter persent to search for pipes: ";
     int per;
     per = inputT(1);
-    vector<int> res = findCSbyPer(groupCS, per);
+    vector<int> res = findCSbyPer(newNetWork, per);
     if (res.size() == 0) {
         cout << "There are no CS with this percent.\n";
         return;
     }
-    for (int i = 0; i < res.size(); i++) {
+    newNetWork.editCS(res);
+    /*for (int i = 0; i < res.size(); i++) {
         groupCS[res[i]].editCS();
-    }
+    }*/
 }
 
 //void checkNumPipe(map<int, comprSt>& groupCS, int& IDEntry, int& IDExit) {
@@ -333,20 +369,21 @@ vector<vector<int>> createMatrix(map<int, graph> graphG, int numNodes) {
 }
 
 //---------------------------ЗАПРОС ВВОДА ПАРАМЕТРОВ ДЛЯ ГРАФА------------------------------//
-void requestForParameters(int &IDEntry,int &IDExit, int &diam, map<int, comprSt>& groupCS) {
+void requestForParameters(int &IDEntry,int &IDExit, int &diam, netWork& newNetWork) {
     while (1) {
         cout << "Enter the CS entry ID or enter -1 to create a CS: ";
         IDEntry = inputT(1);
         if (IDEntry == -1)
         {
-            comprSt newCS;
+            /*comprSt newCS;
             newCS.addCS();
-            pushCS(groupCS, newCS);
-            IDEntry = newCS.getID();
+            pushCS(groupCS, newCS);*/
+            newNetWork.addCS();
+            IDEntry = newNetWork.getCS()[newNetWork.getCS().rbegin()->first].getID();
         }
         cout << "Enter the CS exit ID: ";
         IDExit = inputT(1);
-        if (groupCS.contains(IDEntry) && groupCS.contains(IDExit) && IDEntry != IDExit)
+        if (newNetWork.getCS().contains(IDEntry) && newNetWork.getCS().contains(IDExit) && IDEntry != IDExit)
             break;
         cout << "There are no such IDs. Enter another ID\n";
     }
@@ -361,31 +398,31 @@ void requestForParameters(int &IDEntry,int &IDExit, int &diam, map<int, comprSt>
     }
 }
 
-map<int, int> degeeOfEntry(vector<vector<int>> matrix, int numNodes) {
-    map<int, int> degreesOfNodes;
-    for (int node = 0; node < numNodes; node++)
-    {
-        //if (degreesOfNodes[node]) {
-        degreesOfNodes[node] = 0;
-    }
-    for (int node = 0; node < numNodes; node++)
-    {
-        for (int neighbor : matrix[node]) {
-            bool f = !degreesOfNodes[neighbor];
-            degreesOfNodes[neighbor]++;
-            
-        }
-    }
-    return degreesOfNodes;
-}
-map<int, int> degeeOfOutcome(vector<vector<int>> matrix, int numNodes) {
-    map<int, int> degreesOfNodes;
-    for (int node = 0; node < numNodes; node++)
-    {
-        degreesOfNodes[node] = matrix[node].size();
-    }
-    return degreesOfNodes;
-}
+//map<int, int> degreeOfEntry(vector<vector<int>> matrix, int numNodes) {
+//    map<int, int> degreesOfNodes;
+//    for (int node = 0; node < numNodes; node++)
+//    {
+//        //if (degreesOfNodes[node]) {
+//        degreesOfNodes[node] = 0;
+//    }
+//    for (int node = 0; node < numNodes; node++)
+//    {
+//        for (int neighbor : matrix[node]) {
+//            bool f = !degreesOfNodes[neighbor];
+//            degreesOfNodes[neighbor]++;
+//            
+//        }
+//    }
+//    return degreesOfNodes;
+//}
+//map<int, int> degreeOfOutcome(vector<vector<int>> matrix, int numNodes) {
+//    map<int, int> degreesOfNodes;
+//    for (int node = 0; node < numNodes; node++)
+//    {
+//        degreesOfNodes[node] = matrix[node].size();
+//    }
+//    return degreesOfNodes;
+//}
 
 //vector<int> topologicalSorting(map<int, int> entryDegeeOfNodes, map<int, int> outDegeeOfNodes, vector<vector<int>> matrix, int numNodes) {
 //    vector <int> res;
@@ -428,6 +465,7 @@ void dfs(vector<vector<int>>& graph, int node, vector<bool>& visited, vector<int
 //-----------------------------MAIN---------------------------//
 int main()
 {
+    string FILENAME;
     redirect_output_wrapper cerr_out(cerr);
     ofstream logfile("logging.txt");
     if (logfile)
@@ -449,34 +487,41 @@ int main()
         {
         case 1:
         {
-            pipe newPipe;
+            /*pipe newPipe;
             newPipe.addPipe();
-            pushPipe(groupPipe, newPipe);
+            pushPipe(groupPipe, newPipe);*/
+            newNetWork.addPipe();
             break;
         }
         case 2:
         {
-            comprSt newCS;
+            /*comprSt newCS;
             newCS.addCS();
-            pushCS(groupCS, newCS);
+            pushCS(groupCS, newCS);*/
+            newNetWork.addCS();
             break;
         }
         case 3:
         {
-            printAllObj(groupPipe, groupCS);
+            //printAllObj(groupPipe, groupCS);
+            newNetWork.printAllObj();
+            for (auto const& edge : graphG) {
+                graphG[edge.first].printG();
+            }
+
             break;
         }
         case 4:
         {
-            if (groupPipe.size() != 0) {
+            if (newNetWork.getPipe().size() != 0) {
                 
                 cout << "Enter 0 to search by name or 1 to search by repair: ";
                 bool field = inputT(true);
                 if (field == 0) {
-                    editPipeByName(groupPipe);
+                    editPipeByName(newNetWork);
                 }
                 else {
-                    editPipeByRepair(groupPipe);
+                    editPipeByRepair(newNetWork);
                 }  
             }
             else {
@@ -490,10 +535,10 @@ int main()
                 cout << "Enter 0 to search by name or 1 to search by percent: ";
                 bool field = inputT(true);
                 if (field == 0) {
-                    editCSByName(groupCS);
+                    editCSByName(newNetWork);
                 }
                 else {
-                    editCSByPer(groupCS);
+                    editCSByPer(newNetWork);
                 }
             }
             else {
@@ -503,12 +548,24 @@ int main()
         }
         case 6:
         {
-            SaveToFile(groupPipe, groupCS);
+            //SaveToFile(groupPipe, groupCS);
+            if (newNetWork.getPipe().size() == 0 && newNetWork.getCS().size() == 0) cout << "Input or load data to save" << endl;
+            else {
+                cout << "Enter name of file to save:";
+                cin >> FILENAME;
+                cerr << FILENAME << endl;
+                ofstream fout(FILENAME);
+                newNetWork.saveToFile(fout);
+                if (graphG.size() != 0) fout << "G" << endl;
+                for (auto const& edge : graphG) {
+                    graphG[edge.first].saveGraph(fout);
+                }
+            }
             break;
         }
         case 7:
         {
-            string FILENAME, marker;
+            string marker;
             cout << "Enter name of file to load:";
             cin >> FILENAME;
             cerr << FILENAME << endl;
@@ -522,11 +579,9 @@ int main()
                     graphG.insert(pair<int, graph>(graph::maxIdG, newEdge));
                     graph::maxIdG++;
                 }
-                
-                //usedPipe.push_back(p);
-                /*nodes[newEdge.IDEntry] = 1;
+                /*//usedPipe.push_back(p);
+                nodes[newEdge.IDEntry] = 1;
                 nodes[newEdge.IDExit] = 1;*/
-                
                 //netWork::loadFromFile(fin);
                 //while (!fin.eof()) {
                 //    graph newEdge;
@@ -543,22 +598,25 @@ int main()
         }
         case 8:
         {
-            deletePipe(groupPipe);
+            //deletePipe(groupPipe);
+            int index = SelectPipe(newNetWork);
+            newNetWork.deletePipe(index);
             break;
         }
         case 9:
         {
-            deleteCS(groupCS);
+            int index = SelectCS(newNetWork);
+            newNetWork.deleteCS(index);
             break;
         }
         case 10:
         {
             int IDEntry, IDExit, diam;
             bool flag = 0;
-            requestForParameters(IDEntry, IDExit, diam, groupCS);
+            requestForParameters(IDEntry, IDExit, diam, newNetWork);
             while(1)
             {
-                vector <int> res = findPipeByDiam(groupPipe, diam);
+                vector <int> res = findPipeByDiam(newNetWork, diam);
                 for (auto& p : res) {
                     bool findEdge = (find(usedPipe.begin(), usedPipe.end(), p) != usedPipe.end());
                     if (!(find(usedPipe.begin(), usedPipe.end(), p) != usedPipe.end())) {
@@ -577,9 +635,10 @@ int main()
                 if (flag) {
                     break;
                 }
-                pipe newPipe;
+                /*pipe newPipe;
                 newPipe.addPipe();
-                pushPipe(groupPipe, newPipe);
+                pushPipe(groupPipe, newPipe);*/
+                newNetWork.addPipe();
             }
             for (auto& [key, p] : graphG) {
                 p.printG();
