@@ -67,9 +67,13 @@ int SelectPipe(netWork& newNetWork) {
     cout << "Enter pipe id: ";
     while (1) {
         unsigned int index = inputT(1);
-        if (index >= 1 && index < newNetWork.getPipe().size()) {
-            return index;
+        for (auto& [key, p] : newNetWork.getPipe()) {
+            if (key == index)
+                return index;
         }
+        /*if (index >= 1 && index < newNetWork.getPipe().size()) {
+            
+        }*/
         cout << "enter correct number: ";
     }
 }
@@ -78,9 +82,14 @@ int SelectCS(netWork& newNetWork) {
     cout << "Enter CS id: ";
     while (1) {
         unsigned int index = inputT(1);
-        if (index >= 1 && index < newNetWork.getCS().size()) {
-            return index;
+        for (auto& [key, cs] : newNetWork.getCS())
+        {
+            if (key == index)
+                return index;
         }
+        /*if (index >= 1 && index < newNetWork.getCS().size()) {
+            return index;
+        }*/
         cout << "enter correct number: ";
     }
 }
@@ -105,9 +114,9 @@ vector<int> findPipebyName(netWork& newNetWork, string name) {
 }*/
 vector<int> findPipeByDiam(netWork& newNetWork, int diam) {
     vector <int> res;
-    for (int i = 0; i < newNetWork.getPipe().size(); i++) {
+    for (int i = 0; i < newNetWork.getPipe().size()+1; i++) {
         if (newNetWork.getPipe()[i].diam == diam)
-            res.push_back(i+1);
+            res.push_back(i);
     }
     return res;
 }
@@ -368,11 +377,29 @@ vector<vector<int>> createMatrix(map<int, graph> graphG, int numNodes) {
     return matrix;
 }
 
+int inputValue() {
+    int state;
+    while (1) {
+        if (!(cin >> state)) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Try again: ";
+        }
+        else if (state >= 1 || state == -1) {
+            cerr << state << endl;
+            return state;
+        }
+        else cout << "enter value more than 0: ";
+    }
+    cerr << state << endl;
+    return state;
+}
+
 //---------------------------ЗАПРОС ВВОДА ПАРАМЕТРОВ ДЛЯ ГРАФА------------------------------//
 void requestForParameters(int &IDEntry,int &IDExit, int &diam, netWork& newNetWork) {
     while (1) {
         cout << "Enter the CS entry ID or enter -1 to create a CS: ";
-        IDEntry = inputT(1);
+        IDEntry = inputValue();
         if (IDEntry == -1)
         {
             /*comprSt newCS;
@@ -471,11 +498,11 @@ int main()
     if (logfile)
         cerr_out.redirect(logfile);
 
-    map<int, comprSt> groupCS;
-    map<int, pipe> groupPipe;
+    /*map<int, comprSt> groupCS;
+    map<int, pipe> groupPipe;*/
     map<int, graph> graphG;
-    map<int, bool> nodes;
-
+    //map<int, bool> nodes;//переделать на вектор
+    //vector <bool> nodes;
     vector <int> usedPipe;
     netWork newNetWork;
 
@@ -531,7 +558,7 @@ int main()
         }
         case 5:
         {
-            if (groupCS.size() != 0){
+            if (newNetWork.getCS().size() != 0) {
                 cout << "Enter 0 to search by name or 1 to search by percent: ";
                 bool field = inputT(true);
                 if (field == 0) {
@@ -559,7 +586,10 @@ int main()
                 if (graphG.size() != 0) fout << "G" << endl;
                 for (auto const& edge : graphG) {
                     graphG[edge.first].saveGraph(fout);
+                    if (edge.first != graphG.rbegin()->first)
+                        fout << endl;
                 }
+                fout.close();
             }
             break;
         }
@@ -579,6 +609,16 @@ int main()
                     graphG.insert(pair<int, graph>(graph::maxIdG, newEdge));
                     graph::maxIdG++;
                 }
+                for (auto& [key, edge] : graphG) {
+                    for (auto& [ind, p]: newNetWork.getPipe()) {
+                        bool findEdge = (find(usedPipe.begin(), usedPipe.end(), ind) != usedPipe.end());
+                        if ((edge.diam == p.diam) && !findEdge) {
+                            edge.pipeID = ind;
+                            usedPipe.push_back(ind);
+                            break;
+                        }
+                    }
+                }
                 /*//usedPipe.push_back(p);
                 nodes[newEdge.IDEntry] = 1;
                 nodes[newEdge.IDExit] = 1;*/
@@ -593,6 +633,7 @@ int main()
                 //    graph::maxIdG++;
                 //}
             }
+            fin.close();
             //loadFromFile(groupPipe, groupCS);
             break;
         }
@@ -600,12 +641,32 @@ int main()
         {
             //deletePipe(groupPipe);
             int index = SelectPipe(newNetWork);
+            for (auto& [ind, edge] : graphG) {
+                if (newNetWork.getPipe()[index].diam == edge.diam && index == edge.pipeID)
+                {
+                    graphG.erase(ind);
+                    break;
+                }
+            }
             newNetWork.deletePipe(index);
             break;
         }
         case 9:
         {
+            vector<int> deleteEdge;
             int index = SelectCS(newNetWork);
+            for (auto& [ind, edge] : graphG) {
+                //newNetWork.getCS()[index].getID()
+                if (index == edge.IDEntry || index == edge.IDExit)
+                {
+                    deleteEdge.push_back(ind);
+                    /*graphG.erase(ind);
+                    break;*/
+                }
+            }
+            for (int i = 0; i < deleteEdge.size(); i++) {
+                graphG.erase(deleteEdge[i]);
+            }
             newNetWork.deleteCS(index);
             break;
         }
@@ -619,15 +680,14 @@ int main()
                 vector <int> res = findPipeByDiam(newNetWork, diam);
                 for (auto& p : res) {
                     bool findEdge = (find(usedPipe.begin(), usedPipe.end(), p) != usedPipe.end());
+                     
                     if (!(find(usedPipe.begin(), usedPipe.end(), p) != usedPipe.end())) {
                         graph newEdge;
-                        newEdge.addEdge(IDEntry, IDExit, diam);
+                        newEdge.addEdge(IDEntry, IDExit, newNetWork.getPipe()[p]);
                         graphG.insert(pair<int, graph>(graph::maxIdG, newEdge));
                         usedPipe.push_back(p);
                         //nodes.insert(pair<int, bool>(IDEntry, 1));
                         //nodes.insert(pair<int, bool>(IDExit, 1));
-                        nodes[IDEntry] = 1;
-                        nodes[IDExit] = 1;
                         flag = 1;
                         break;
                     }
@@ -647,15 +707,15 @@ int main()
         }
         case 11:
         {
-            vector<vector<int>>matrix = createMatrix(graphG, groupCS.size());
+            vector<vector<int>>matrix = createMatrix(graphG, newNetWork.getCS().size());
             vector<int> resOfTop;
-            if (hasCycle(matrix, groupCS.size())) {
+            if (hasCycle(matrix, newNetWork.getCS().size())) {
                 cout << "Graph has a cicle" << endl;
             }
             else {
                 cout << "Graph does not have a cicle" << endl;
-                vector<bool>visited(groupCS.size());
-                for (int node = 0; node < groupCS.size(); node++)
+                vector<bool>visited(newNetWork.getCS().size());
+                for (int node = 0; node < newNetWork.getCS().size(); node++)
                     if (!visited[node])
                         dfs(matrix, node, visited, resOfTop);
                 reverse(resOfTop.begin(), resOfTop.end());
@@ -680,37 +740,37 @@ int main()
             
             break;
         }
-        case 12:
-        {
-            ofstream fout("GRAPH.TXT");
-            for (auto const& edge : graphG) {
-                graphG[edge.first].saveGraph(fout);
-            }
-            break;
-        }
-        case 13:
-        {
-            graph::maxIdG = 1;
-            ifstream fin("GRAPH.TXT");
-            if(fin.is_open()) {
-                while (!fin.eof()) {
-                    graph newEdge;
-                    newEdge.loadGraph(fin);
-                    graphG.insert(pair<int, graph>(graph::maxIdG, newEdge));
-                    //usedPipe.push_back(p);
-                    nodes[newEdge.IDEntry] = 1;
-                    nodes[newEdge.IDExit] = 1;
-                    graph::maxIdG++;
-                }
-            }
-            break;
-        }
-        case 14:
-        {
-            int index = SelectG(graphG);
-            graphG.erase(index);
-            break;
-        }
+        //case 12:
+        //{
+        //    ofstream fout("GRAPH.TXT");
+        //    for (auto const& edge : graphG) {
+        //        graphG[edge.first].saveGraph(fout);
+        //    }
+        //    break;
+        //}
+        //case 13:
+        //{
+        //    graph::maxIdG = 1;
+        //    ifstream fin("GRAPH.TXT");
+        //    if(fin.is_open()) {
+        //        while (!fin.eof()) {
+        //            graph newEdge;
+        //            newEdge.loadGraph(fin);
+        //            graphG.insert(pair<int, graph>(graph::maxIdG, newEdge));
+        //            //usedPipe.push_back(p);
+        //            nodes[newEdge.IDEntry] = 1;
+        //            nodes[newEdge.IDExit] = 1;
+        //            graph::maxIdG++;
+        //        }
+        //    }
+        //    break;
+        //}
+        //case 14:
+        //{
+        //    int index = SelectG(graphG);
+        //    graphG.erase(index);
+        //    break;
+        //}
         case 0:
         {
             return 0;
