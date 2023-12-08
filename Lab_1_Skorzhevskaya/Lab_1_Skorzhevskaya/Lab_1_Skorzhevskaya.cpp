@@ -52,7 +52,7 @@ bool checkPipeD(int diam) {
 }
 
 //--------------------------ВЫБОР ТРУБЫ/КС--------------------------//
-int SelectG(map<int, graph> graphG) {
+int SelectG(map<int, edge> graphG) {
     cout << "Enter pipe id: ";
     while (1) {
         unsigned int index = inputT(1);
@@ -369,7 +369,7 @@ bool hasCycle(vector<vector<int>>& graph, int numNodes) {
     return false;
 }
 
-vector<vector<int>> createMatrix(map<int, graph> graphG, int numNodes) {
+vector<vector<int>> createMatrix(map<int, edge> graphG, int numNodes) {
     vector<vector<int>> matrix(numNodes);
     for (auto& [key, p] : graphG) {
         matrix[p.IDExit-1].push_back(p.IDEntry-1);
@@ -500,10 +500,11 @@ int main()
 
     /*map<int, comprSt> groupCS;
     map<int, pipe> groupPipe;*/
-    map<int, graph> graphG;
+    map<int, edge> graphG;
     //map<int, bool> nodes;//переделать на вектор
     //vector <bool> nodes;
     vector <int> usedPipe;
+    vector <int> delitedCS;
     netWork newNetWork;
 
     while (1)
@@ -533,7 +534,7 @@ int main()
             //printAllObj(groupPipe, groupCS);
             newNetWork.printAllObj();
             for (auto const& edge : graphG) {
-                graphG[edge.first].printG();
+                graphG[edge.first].printEdge();
             }
 
             break;
@@ -585,7 +586,7 @@ int main()
                 newNetWork.saveToFile(fout);
                 if (graphG.size() != 0) fout << "G" << endl;
                 for (auto const& edge : graphG) {
-                    graphG[edge.first].saveGraph(fout);
+                    graphG[edge.first].saveEdge(fout);
                     if (edge.first != graphG.rbegin()->first)
                         fout << endl;
                 }
@@ -600,14 +601,14 @@ int main()
             cin >> FILENAME;
             cerr << FILENAME << endl;
             ifstream fin(FILENAME);
-            graph::maxIdG = 1;
+            edge::maxIdG = 1;
             if (fin.is_open()) {
                 newNetWork.loadFromFile(fin);
-                graph newEdge;
+                edge newEdge;
                 while (!fin.eof()) {
-                    newEdge.loadGraph(fin);
-                    graphG.insert(pair<int, graph>(graph::maxIdG, newEdge));
-                    graph::maxIdG++;
+                    newEdge.loadEdge(fin);
+                    graphG.insert(pair<int, edge>(edge::maxIdG, newEdge));
+                    edge::maxIdG++;
                 }
                 for (auto& [key, edge] : graphG) {
                     for (auto& [ind, p]: newNetWork.getPipe()) {
@@ -662,11 +663,13 @@ int main()
                     deleteEdge.push_back(ind);
                     /*graphG.erase(ind);
                     break;*/
+
                 }
             }
             for (int i = 0; i < deleteEdge.size(); i++) {
                 graphG.erase(deleteEdge[i]);
             }
+            delitedCS.push_back(index);
             newNetWork.deleteCS(index);
             break;
         }
@@ -679,12 +682,12 @@ int main()
             {
                 vector <int> res = findPipeByDiam(newNetWork, diam);
                 for (auto& p : res) {
-                    bool findEdge = (find(usedPipe.begin(), usedPipe.end(), p) != usedPipe.end());
+                    bool pipeInUse = (find(usedPipe.begin(), usedPipe.end(), p) != usedPipe.end());
                      
-                    if (!(find(usedPipe.begin(), usedPipe.end(), p) != usedPipe.end())) {
-                        graph newEdge;
+                    if (!pipeInUse) {
+                        edge newEdge;
                         newEdge.addEdge(IDEntry, IDExit, newNetWork.getPipe()[p]);
-                        graphG.insert(pair<int, graph>(graph::maxIdG, newEdge));
+                        graphG.insert(pair<int, edge>(edge::maxIdG, newEdge));
                         usedPipe.push_back(p);
                         //nodes.insert(pair<int, bool>(IDEntry, 1));
                         //nodes.insert(pair<int, bool>(IDExit, 1));
@@ -701,7 +704,7 @@ int main()
                 newNetWork.addPipe();
             }
             for (auto& [key, p] : graphG) {
-                p.printG();
+                p.printEdge();
             }
             break;
         }
@@ -713,12 +716,38 @@ int main()
                 cout << "Graph has a cicle" << endl;
             }
             else {
+                //bool f = 0;
+                //int k = 1;
                 cout << "Graph does not have a cicle" << endl;
                 vector<bool>visited(newNetWork.getCS().size());
                 for (int node = 0; node < newNetWork.getCS().size(); node++)
                     if (!visited[node])
                         dfs(matrix, node, visited, resOfTop);
                 reverse(resOfTop.begin(), resOfTop.end());
+                //for (int node : resOfTop) {
+                //    for (int i = 0; i < delitedCS.size(); i++)
+                //    {
+                //        if (node+1 == delitedCS[i]) {
+                //            //k ++;
+                //            f = 1;
+                //            break;
+                //        }
+                //        else { f = 0; }
+                //        /*if (node + 1 >= delitedCS[i]) {
+                //            cout << node + 1 << " ";
+                //        }*/
+                //    }
+                //    if(!f)
+                //        cout << node + 1 << " ";
+                //    /*else cout << node + 2 << " ";
+                //    
+
+                //}*/
+                for (int i = 0; i < delitedCS.size(); i++) {
+                    for (int j = 0; j < resOfTop.size(); j++) {
+                        if (resOfTop[j]+1 >= delitedCS[i]) resOfTop[j]++;
+                    }
+                }
                 for (int node : resOfTop) {
                     cout << node + 1 << " ";
                 }

@@ -5,8 +5,8 @@
 #include <fstream>
 
 using namespace std;
-int graph::maxIdG = 1;
-void graph::addEdge(int begin, int end, pipe pipe)
+int edge::maxIdG = 1;
+void edge::addEdge(int begin, int end, pipe& pipe)
 {
     id = maxIdG;
     IDExit = begin;
@@ -16,7 +16,7 @@ void graph::addEdge(int begin, int end, pipe pipe)
     maxIdG++;
 }
 
-void graph::printG()
+void edge::printEdge()
 {
     cout << "\nEdge" << endl;
     cout << "ID: " << id << endl;
@@ -26,14 +26,14 @@ void graph::printG()
     cout << "diam: " << diam << endl;
 }
 
-void graph::saveGraph(ofstream& fout) {
+void edge::saveEdge(ofstream& fout) {
     if (fout.is_open()) {
         fout << IDExit << endl << IDEntry
             << endl << pipeID << endl << diam;
     }
 
 }
-void graph::loadGraph(ifstream& fin) {
+void edge::loadEdge(ifstream& fin) {
     id = maxIdG;
     fin >> IDExit;
     fin >> IDEntry;

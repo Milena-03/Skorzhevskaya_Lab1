@@ -3,7 +3,7 @@
 #include "pipe.h"
 
 using namespace std;
-class graph
+class edge
 {
 	int id;
 public:
@@ -12,9 +12,9 @@ public:
 	int IDExit;
 	int pipeID;
 	int diam;
-	void addEdge(int begin, int end, pipe pipe);
-	void printG();
-	void saveGraph(ofstream& fout);
-	void loadGraph(ifstream& fin);
+	void addEdge(int begin, int end, pipe& pipe);
+	void printEdge();
+	void saveEdge(ofstream& fout);
+	void loadEdge(ifstream& fin);
 };
 
