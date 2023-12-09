@@ -1,8 +1,5 @@
 #include "netWork.h"
 #include "utils.h"
-//#include "graph.h"
-//#include "pushElements.cpp"
-//#include "pushPipeE.cpp"
 #include<iostream>
 
 void paddCS(map<int, comprSt>& groupCS, comprSt newCS) {
